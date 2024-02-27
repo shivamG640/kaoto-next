@@ -1,5 +1,4 @@
 import { Title } from '@patternfly/react-core';
-import isEmpty from 'lodash.isempty';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { ErrorBoundary } from '../../ErrorBoundary';
