@@ -42,7 +42,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
 
   const handleOnChangeIndividualProp = useCallback(
     (path: string, value: unknown) => {
-      if (!props.selectedNode.data?.vizNode || (typeof value === 'object' && isEmpty(value))) {
+      if (!props.selectedNode.data?.vizNode) {
         return;
       }
 
