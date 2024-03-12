@@ -85,22 +85,28 @@
         "type": "object",
         "properties": {
           "title": {
-            "title": "title",
+            "title": "Title",
             "description": "Display name of the property",
             "type": "string"
           },
           "description": {
-            "title": "description",
+            "title": "Description",
             "description": "Simple text description of the property",
             "type": "string"
           },
           "type": {
-            "title": "type",
-            "description": "JSON-schema type of the property",
-            "type": "string"
+            "title": "Property type",
+            "description": "Set the expected type for this property",
+            "type": "string",
+            "enum": [
+              "string",
+              "number",
+              "boolean"
+            ],
+            "default": "string"
           },
           "x-descriptors": {
-            "title": "x-descriptors",
+          "title": "X-descriptors",
             "description": "Specific aids for the visual tools",
             "type": "array",
             "items": {

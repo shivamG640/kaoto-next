@@ -92,4 +92,5 @@ export interface IKameletCustomDefinition {
   namespace: string;
   labels: Record<string, string>;
   annotations: Record<string, string>;
+  kameletProperties: IKameletSpecProperty[];
 }
