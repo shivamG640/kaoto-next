@@ -5,7 +5,8 @@ import {
   IKameletMetadataLabels,
   KameletKnownAnnotations,
   KameletKnownLabels,
-  IKameletSpecProperty
+  IKameletSpecProperty,
+  IKameletCustomProperty,
 } from '../models/kamelets-catalog';
 import { getValue } from './get-value';
 
@@ -17,7 +18,10 @@ export const getCustomSchemaFromKamelet = (kamelet: IKameletDefinition): IKamele
   const annotations = getValue(kamelet, 'metadata.annotations', {} as IKameletMetadataAnnotations);
   const labels = getValue(kamelet, 'metadata.labels', {} as IKameletMetadataLabels);
   const properties = getValue(kamelet, 'spec.definition.properties', {} as Record<string, IKameletSpecProperty>);
-  const processedProperties = Object.values(properties) as IKameletSpecProperty[];
+  const processedProperties: IKameletCustomProperty[] = Object.keys(properties).map(key => ({
+    PropertyName: key,
+    ...properties[key]
+  }));
 
   const filteredLabels = Object.keys(labels).reduce((acc, key) => {
     if (key !== KameletKnownLabels.Type) {

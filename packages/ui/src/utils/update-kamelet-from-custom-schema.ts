@@ -1,3 +1,4 @@
+import { title } from 'process';
 import {
   IKameletDefinition,
   IKameletMetadataAnnotations,
@@ -5,6 +6,7 @@ import {
   KameletKnownAnnotations,
   KameletKnownLabels,
   IKameletSpecProperty,
+  IKameletCustomProperty,
 } from '../models/kamelets-catalog';
 import { getValue } from './get-value';
 import { setValue } from './set-value';
@@ -56,6 +58,13 @@ export const updateKameletFromCustomSchema = (kamelet: IKameletDefinition, value
   setValue(kamelet, 'metadata.labels', newLabels);
   setValue(kamelet, 'metadata.annotations', newAnnotations);
 
-  const newProperties = Object.assign({}, getValue(value, 'kameletProperties', {} as Record<string, IKameletSpecProperty>));
+  const propertiesArray = getValue(value, 'kameletProperties', [] as IKameletCustomProperty[]);
+  const newProperties = propertiesArray.reduce((acc: Record<string, IKameletSpecProperty>, property: IKameletCustomProperty) => {
+    if(property !== undefined) {
+      const { PropertyName, ...rest } = property;
+      acc[PropertyName] = rest;
+    }
+    return acc;
+  }, {});
   setValue(kamelet, 'spec.definition.properties', newProperties);
 };

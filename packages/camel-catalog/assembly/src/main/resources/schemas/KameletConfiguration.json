@@ -105,6 +105,11 @@
             ],
             "default": "string"
           },
+          "default": {
+            "title": "Default",
+            "description": "Default value for the property",
+            "type": "string"
+          },
           "x-descriptors": {
           "title": "X-descriptors",
             "description": "Specific aids for the visual tools",
