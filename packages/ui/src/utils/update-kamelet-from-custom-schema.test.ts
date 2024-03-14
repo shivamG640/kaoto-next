@@ -75,6 +75,18 @@ describe('updateKameletFromCustomSchema', () => {
     expect(inputKameletStruct).toEqual(originalValue);
   });
 
+  it(`should preserve kamelet's original values when there are no properties`, () => {
+    const kameletWithoutProperties = cloneDeep(inputKameletStruct);
+    kameletWithoutProperties.spec.definition.properties = {};
+
+    const originalValue = cloneDeep(kameletWithoutProperties);
+    originalValue.spec.definition.properties = {};
+    const value = undefined;
+
+    updateKameletFromCustomSchema(kameletWithoutProperties, value as unknown as Record<string, unknown>);
+    expect(kameletWithoutProperties).toEqual(originalValue);
+  });
+
   it('should not mutate the original kamelet when loading a custom schema', () => {
     const value = {
       name: 'test',

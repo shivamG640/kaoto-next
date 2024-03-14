@@ -57,29 +57,22 @@ export const updateKameletFromCustomSchema = (kamelet: IKameletDefinition, value
   setValue(kamelet, 'metadata.labels', newLabels);
   setValue(kamelet, 'metadata.annotations', newAnnotations);
 
-  const previousProperties = getValue(
-    kamelet,
-    'spec.definition.properties',
+  const propertiesArray: IKameletCustomProperty[] | undefined = getValue(value, 'kameletProperties');
+  const newProperties = propertiesArray?.reduce(
+    (acc, property) => {
+      if (property !== undefined) {
+        const { name, ...rest } = property;
+        acc[name] = rest;
+      }
+      return acc;
+    },
     {} as Record<string, IKameletSpecProperty>,
   );
 
-  const propertiesArray = getValue(value, 'kameletProperties');
-  let newProperties: Record<string, IKameletSpecProperty> = {};
-
-  if (propertiesArray !== undefined) {
-    newProperties = propertiesArray.reduce(
-      (acc: Record<string, IKameletSpecProperty>, property: IKameletCustomProperty) => {
-        if (property !== undefined) {
-          const { name, ...rest } = property;
-          acc[name] = rest;
-        }
-        return acc;
-      },
-      {},
-    );
-  } else {
-    Object.assign(newProperties, previousProperties);
+  const previousProperties: Record<string, IKameletSpecProperty> = getValue(kamelet, 'spec.definition.properties', {});
+  const arePreviousPropertiesEmpty = Object.keys(previousProperties).length === 0;
+  const isPropertiesArrayEmpty = propertiesArray?.length === 0;
+  if (!(arePreviousPropertiesEmpty && isPropertiesArrayEmpty) && newProperties !== undefined) {
+    setValue(kamelet, 'spec.definition.properties', newProperties);
   }
-
-  setValue(kamelet, 'spec.definition.properties', newProperties);
 };
