@@ -29,6 +29,12 @@ describe('updateKameletFromCustomSchema', () => {
         definition: {
           description: 'Produces periodic events about random users!',
           properties: {
+            period: {
+              default: 5000,
+              description: 'The time interval between two events',
+              title: 'Period',
+              type: 'integer',
+            },
           },
           title: 'kamelet-35256',
           type: 'object',

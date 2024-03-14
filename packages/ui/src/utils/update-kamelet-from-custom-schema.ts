@@ -1,4 +1,3 @@
-import { title } from 'process';
 import {
   IKameletDefinition,
   IKameletMetadataAnnotations,
@@ -81,6 +80,6 @@ export const updateKameletFromCustomSchema = (kamelet: IKameletDefinition, value
   } else {
     Object.assign(newProperties, previousProperties);
   }
-  
+
   setValue(kamelet, 'spec.definition.properties', newProperties);
 };
