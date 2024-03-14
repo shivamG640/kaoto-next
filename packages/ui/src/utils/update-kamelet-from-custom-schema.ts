@@ -58,13 +58,29 @@ export const updateKameletFromCustomSchema = (kamelet: IKameletDefinition, value
   setValue(kamelet, 'metadata.labels', newLabels);
   setValue(kamelet, 'metadata.annotations', newAnnotations);
 
-  const propertiesArray = getValue(value, 'kameletProperties', [] as IKameletCustomProperty[]);
-  const newProperties = propertiesArray.reduce((acc: Record<string, IKameletSpecProperty>, property: IKameletCustomProperty) => {
-    if(property !== undefined) {
-      const { PropertyName, ...rest } = property;
-      acc[PropertyName] = rest;
-    }
-    return acc;
-  }, {});
+  const previousProperties = getValue(
+    kamelet,
+    'spec.definition.properties',
+    {} as Record<string, IKameletSpecProperty>,
+  );
+
+  const propertiesArray = getValue(value, 'kameletProperties');
+  let newProperties: Record<string, IKameletSpecProperty> = {};
+
+  if (propertiesArray !== undefined) {
+    newProperties = propertiesArray.reduce(
+      (acc: Record<string, IKameletSpecProperty>, property: IKameletCustomProperty) => {
+        if (property !== undefined) {
+          const { name, ...rest } = property;
+          acc[name] = rest;
+        }
+        return acc;
+      },
+      {},
+    );
+  } else {
+    Object.assign(newProperties, previousProperties);
+  }
+  
   setValue(kamelet, 'spec.definition.properties', newProperties);
 };

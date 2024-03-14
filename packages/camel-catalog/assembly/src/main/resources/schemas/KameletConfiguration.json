@@ -84,6 +84,11 @@
       "items": {
         "type": "object",
         "properties": {
+          "name": {
+            "title": "Property name",
+            "description": "Name of the property",
+            "type": "string"
+          },
           "title": {
             "title": "Title",
             "description": "Display name of the property",

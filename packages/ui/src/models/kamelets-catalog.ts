@@ -79,8 +79,8 @@ export interface IKameletSpecProperty {
   'x-descriptors'?: string[];
 }
 
-export interface IKameletCustomProperty extends IKameletSpecProperty{
-  PropertyName: string;
+export interface IKameletCustomProperty extends IKameletSpecProperty {
+  name: string;
 }
 
 export interface IKameletCustomDefinition {

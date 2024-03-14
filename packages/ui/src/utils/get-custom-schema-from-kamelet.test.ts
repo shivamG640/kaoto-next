@@ -107,13 +107,15 @@ describe('getCustomSchemaFromKamelet', () => {
       annotations: {
         foo: 'bar',
       },
-      kameletProperties: [{
-        PropertyName: "period",
-        default: 5000,
-        description: "The time interval between two events",
-        title: "Period",
-        type: "integer",
-      }]
+      kameletProperties: [
+        {
+          name: 'period',
+          default: 5000,
+          description: 'The time interval between two events',
+          title: 'Period',
+          type: 'integer',
+        },
+      ],
     };
 
     const customSchema = getCustomSchemaFromKamelet(inputKameletStruct as unknown as IKameletDefinition);
