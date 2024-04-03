@@ -8,43 +8,61 @@ import {
   CamelCatalogService,
   CamelRouteVisualEntity,
   CatalogKind,
+  ICamelComponentDefinition,
   ICamelDataformatDefinition,
   ICamelLanguageDefinition,
   ICamelLoadBalancerDefinition,
   ICamelProcessorDefinition,
+  IKameletDefinition,
   KaotoSchemaDefinition,
 } from '../../../models';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
-import { EntitiesContext } from '../../../providers/entities.provider';
+import { VisibleFlowsContext, VisibleFlowsProvider } from '../../../providers';
+import { EntitiesContext, EntitiesProvider } from '../../../providers/entities.provider';
+import { camelRouteJson } from '../../../stubs';
 import { SchemaService } from '../../Form';
 import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
 import { CanvasForm } from './CanvasForm';
 import { CanvasNode } from './canvas.models';
+import { CanvasService } from './canvas.service';
+import { VisualFlowsApi } from '../../../models/visualization/flows/support/flows-visibility';
 
 describe('CanvasForm', () => {
+  let camelRouteVisualEntity: CamelRouteVisualEntity;
+  let selectedNode: CanvasNode;
+  let componentCatalogMap: Record<string, ICamelComponentDefinition>;
+  let patternCatalogMap: Record<string, ICamelProcessorDefinition>;
+  let kameletCatalogMap: Record<string, IKameletDefinition>;
   const schemaService = new SchemaService();
 
-  const schema = {
-    type: 'object',
-    properties: {
-      name: {
-        type: 'string',
-      },
-    },
-  } as unknown as KaotoSchemaDefinition['schema'];
-
   beforeAll(async () => {
-    const patternCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.patterns.file);
-    delete patternCatalog.default;
+    componentCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.components.file);
+    delete componentCatalogMap.default;
+    const modelCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.models.file);
+    delete modelCatalog.default;
+    patternCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.patterns.file);
+    delete patternCatalogMap.default;
+    kameletCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
+    delete kameletCatalogMap.default;
     const languageCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.languages.file);
     delete languageCatalog.default;
     const dataformatCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.dataformats.file);
     delete dataformatCatalog.default;
     const loadbalancerCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.loadbalancers.file);
     delete loadbalancerCatalog.default;
+    const entitiesCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.entities.file);
+    delete entitiesCatalog.default;
+    CamelCatalogService.setCatalogKey(
+      CatalogKind.Component,
+      componentCatalogMap as unknown as Record<string, ICamelComponentDefinition>,
+    );
     CamelCatalogService.setCatalogKey(
       CatalogKind.Pattern,
-      patternCatalog as unknown as Record<string, ICamelProcessorDefinition>,
+      patternCatalogMap as unknown as Record<string, ICamelProcessorDefinition>,
+    );
+    CamelCatalogService.setCatalogKey(
+      CatalogKind.Kamelet,
+      kameletCatalogMap as unknown as Record<string, IKameletDefinition>,
     );
     CamelCatalogService.setCatalogKey(
       CatalogKind.Language,
@@ -58,31 +76,29 @@ describe('CanvasForm', () => {
       CatalogKind.Loadbalancer,
       loadbalancerCatalog as unknown as Record<string, ICamelLoadBalancerDefinition>,
     );
+    CamelCatalogService.setCatalogKey(
+      CatalogKind.Entity,
+      entitiesCatalog as unknown as Record<string, ICamelProcessorDefinition>,
+    );
+  });
+
+  beforeEach(() => {
+    camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson.route);
+    const { nodes } = CanvasService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+    selectedNode = nodes[2]; // choice
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should render', () => {
-    const visualComponentSchema: VisualComponentSchema = {
-      title: 'My Node',
-      schema,
-      definition: {
-        name: 'my node',
-      },
-    };
-
-    const selectedNode: CanvasNode = {
-      id: '1',
-      type: 'node',
-      data: {
-        vizNode: {
-          getComponentSchema: () => visualComponentSchema,
-        } as IVisualizationNode,
-      },
-    };
-
     const { container } = render(
-      <EntitiesContext.Provider value={null}>
-        <CanvasForm selectedNode={selectedNode} />
-      </EntitiesContext.Provider>,
+      <EntitiesProvider>
+        <VisibleFlowsProvider>
+          <CanvasForm selectedNode={selectedNode} />
+        </VisibleFlowsProvider>
+      </EntitiesProvider>,
     );
 
     expect(container).toMatchSnapshot();
@@ -95,13 +111,16 @@ describe('CanvasForm', () => {
       data: {
         vizNode: {
           getComponentSchema: () => undefined,
-        } as IVisualizationNode,
+          getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson.route),
+        } as unknown as IVisualizationNode,
       },
     };
 
     const { container } = render(
       <EntitiesContext.Provider value={null}>
-        <CanvasForm selectedNode={selectedNode} />
+        <VisibleFlowsProvider>
+          <CanvasForm selectedNode={selectedNode} />
+        </VisibleFlowsProvider>
       </EntitiesContext.Provider>,
     );
 
@@ -121,13 +140,16 @@ describe('CanvasForm', () => {
       data: {
         vizNode: {
           getComponentSchema: () => visualComponentSchema,
-        } as IVisualizationNode,
+          getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson.route),
+        } as unknown as IVisualizationNode,
       },
     };
 
     const { container } = render(
       <EntitiesContext.Provider value={null}>
-        <CanvasForm selectedNode={selectedNode} />
+        <VisibleFlowsProvider>
+          <CanvasForm selectedNode={selectedNode} />
+        </VisibleFlowsProvider>
       </EntitiesContext.Provider>,
     );
 
@@ -149,20 +171,49 @@ describe('CanvasForm', () => {
       data: {
         vizNode: {
           getComponentSchema: () => visualComponentSchema,
-        } as IVisualizationNode,
+          getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson.route),
+        } as unknown as IVisualizationNode,
       },
     };
 
     render(
       <EntitiesContext.Provider value={null}>
-        <CanvasForm selectedNode={selectedNode} />
+        <VisibleFlowsProvider>
+          <CanvasForm selectedNode={selectedNode} />
+        </VisibleFlowsProvider>
       </EntitiesContext.Provider>,
     );
 
     expect(visualComponentSchema.definition.parameters).toEqual({});
   });
 
+  it('should allow consumers to update the entity ID', async () => {
+    const originalFlowId = camelRouteVisualEntity.id;
+    const newId = 'MyNewId';
+    const dispatchSpy = jest.fn();
+    const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
+    const { nodes } = CanvasService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+    selectedNode = nodes[nodes.length - 1]; // route group node
+
+    const wrapper = render(
+      <EntitiesProvider>
+        <VisibleFlowsContext.Provider value={{ visibleFlows: { [originalFlowId]: true }, visualFlowsApi }}>
+          <CanvasForm selectedNode={selectedNode} />
+        </VisibleFlowsContext.Provider>
+      </EntitiesProvider>,
+    );
+
+    const idField = await wrapper.findByLabelText('Id');
+
+    expect(camelRouteVisualEntity.id).toEqual(newId);
+    expect(dispatchSpy).toHaveBeenCalledWith({ type: 'renameFlow', originalFlowId, newId });
+  });
+
   describe('should persists changes from both expression editor and main form', () => {
+    beforeEach(() => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
     it('expression => main form', async () => {
       const camelRoute = {
         from: {
@@ -189,7 +240,9 @@ describe('CanvasForm', () => {
 
       render(
         <EntitiesContext.Provider value={null}>
-          <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+          <VisibleFlowsProvider>
+            <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+          </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
       const launchExpression = screen.getByTestId('launch-expression-modal-btn');
@@ -253,7 +306,9 @@ describe('CanvasForm', () => {
 
       render(
         <EntitiesContext.Provider value={null}>
-          <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+          <VisibleFlowsProvider>
+            <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+          </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
       const filtered = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Name');
@@ -292,6 +347,10 @@ describe('CanvasForm', () => {
   });
 
   describe('should persists changes from both dataformat editor and main form', () => {
+    beforeEach(() => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
     it('dataformat => main form', async () => {
       const camelRoute = {
         from: {
@@ -318,7 +377,9 @@ describe('CanvasForm', () => {
 
       render(
         <EntitiesContext.Provider value={null}>
-          <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+          <VisibleFlowsProvider>
+            <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+          </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
       const button = screen
@@ -368,7 +429,9 @@ describe('CanvasForm', () => {
 
       render(
         <EntitiesContext.Provider value={null}>
-          <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+          <VisibleFlowsProvider>
+            <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+          </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
       const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
@@ -394,6 +457,10 @@ describe('CanvasForm', () => {
   });
 
   describe('should persists changes from both loadbalancer editor and main form', () => {
+    beforeEach(() => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
     it('loadbalancer => main form', async () => {
       const camelRoute = {
         from: {
@@ -420,7 +487,9 @@ describe('CanvasForm', () => {
 
       render(
         <EntitiesContext.Provider value={null}>
-          <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+          <VisibleFlowsProvider>
+            <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+          </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
       const button = screen
@@ -470,7 +539,9 @@ describe('CanvasForm', () => {
 
       render(
         <EntitiesContext.Provider value={null}>
-          <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+          <VisibleFlowsProvider>
+            <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+          </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
       const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
@@ -495,76 +566,73 @@ describe('CanvasForm', () => {
     });
   });
 
-  /*
-   * Exhaustive tests
-   */
-
-  it('should render for all component without an error', async () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-    const componentCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.components.file);
-    Object.entries(componentCatalogMap).forEach(([name, catalog]) => {
-      try {
-        if (name === 'default') return;
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        const schema = schemaService.getSchemaBridge((catalog as any).propertiesSchema);
-        render(
-          <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
-            <AutoForm schema={schema!} model={{}} onChangeModel={() => {}}>
-              <AutoFields omitFields={SchemaService.OMIT_FORM_FIELDS} />
-            </AutoForm>
-          </AutoField.componentDetectorContext.Provider>,
-        );
-      } catch (e) {
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        throw new Error(`Error rendering ${name} component: ${(e as any).message}`);
-      }
+  describe('Exhaustive tests', () => {
+    beforeEach(() => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
     });
-  });
 
-  it('should render for all kamelets without an error', async () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-    const kameletCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
-    Object.entries(kameletCatalogMap).forEach(([name, kamelet]) => {
-      try {
-        if (name === 'default') return;
-        expect(kamelet).toBeDefined();
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        const schema = (kamelet as any).propertiesSchema;
-        const bridge = schemaService.getSchemaBridge(schema);
-        render(
-          <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
-            <AutoForm schema={bridge!} model={{}} onChangeModel={() => {}}>
-              <AutoFields omitFields={SchemaService.OMIT_FORM_FIELDS} />
-            </AutoForm>
-          </AutoField.componentDetectorContext.Provider>,
-        );
-      } catch (e) {
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        throw new Error(`Error rendering ${name} component: ${(e as any).message}`);
-      }
+    it('should render for all component without an error', async () => {
+      Object.entries(componentCatalogMap).forEach(([name, catalog]) => {
+        try {
+          if (name === 'default') return;
+          /* eslint-disable  @typescript-eslint/no-explicit-any */
+          const schema = schemaService.getSchemaBridge((catalog as any).propertiesSchema);
+          render(
+            <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
+              <AutoForm schema={schema!} model={{}} onChangeModel={() => {}}>
+                <AutoFields omitFields={SchemaService.OMIT_FORM_FIELDS} />
+              </AutoForm>
+            </AutoField.componentDetectorContext.Provider>,
+          );
+        } catch (e) {
+          /* eslint-disable  @typescript-eslint/no-explicit-any */
+          throw new Error(`Error rendering ${name} component: ${(e as any).message}`);
+        }
+      });
     });
-  });
 
-  it('should render for all patterns without an error', async () => {
-    const patternCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.patterns.file);
-    Object.entries(patternCatalogMap).forEach(([name, pattern]) => {
-      try {
-        if (name === 'default') return;
-        expect(pattern).toBeDefined();
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        const schema = (pattern as any).propertiesSchema;
-        const bridge = schemaService.getSchemaBridge(schema);
-        render(
-          <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
-            <AutoForm schema={bridge!} model={{}} onChangeModel={() => {}}>
-              <AutoFields omitFields={SchemaService.OMIT_FORM_FIELDS} />
-            </AutoForm>
-          </AutoField.componentDetectorContext.Provider>,
-        );
-      } catch (e) {
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        throw new Error(`Error rendering ${name} pattern: ${(e as any).message}`);
-      }
+    it('should render for all kamelets without an error', async () => {
+      Object.entries(kameletCatalogMap).forEach(([name, kamelet]) => {
+        try {
+          if (name === 'default') return;
+          expect(kamelet).toBeDefined();
+          /* eslint-disable  @typescript-eslint/no-explicit-any */
+          const schema = (kamelet as any).propertiesSchema;
+          const bridge = schemaService.getSchemaBridge(schema);
+          render(
+            <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
+              <AutoForm schema={bridge!} model={{}} onChangeModel={() => {}}>
+                <AutoFields omitFields={SchemaService.OMIT_FORM_FIELDS} />
+              </AutoForm>
+            </AutoField.componentDetectorContext.Provider>,
+          );
+        } catch (e) {
+          /* eslint-disable  @typescript-eslint/no-explicit-any */
+          throw new Error(`Error rendering ${name} component: ${(e as any).message}`);
+        }
+      });
+    });
+
+    it('should render for all patterns without an error', async () => {
+      Object.entries(patternCatalogMap).forEach(([name, pattern]) => {
+        try {
+          if (name === 'default') return;
+          expect(pattern).toBeDefined();
+          /* eslint-disable  @typescript-eslint/no-explicit-any */
+          const schema = (pattern as any).propertiesSchema;
+          const bridge = schemaService.getSchemaBridge(schema);
+          render(
+            <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
+              <AutoForm schema={bridge!} model={{}} onChangeModel={() => {}}>
+                <AutoFields omitFields={SchemaService.OMIT_FORM_FIELDS} />
+              </AutoForm>
+            </AutoField.componentDetectorContext.Provider>,
+          );
+        } catch (e) {
+          /* eslint-disable  @typescript-eslint/no-explicit-any */
+          throw new Error(`Error rendering ${name} pattern: ${(e as any).message}`);
+        }
+      });
     });
   });
 });
