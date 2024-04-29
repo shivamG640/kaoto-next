@@ -61,13 +61,13 @@ export const CustomAutoForm = forwardRef<CustomAutoFormRef, CustomAutoFormProps>
       >
         {props.sortFields ? (
           // For some forms, sorting its fields might be beneficial
-          sortedFieldsNames.map((field, index) => (
+          sortedFieldsNames.map((field) => (
             <AutoField
               key={field}
               name={field}
-              inputRef={(node: HTMLElement) => {
-                fieldsRefs.current[index] = node;
-              }}
+              // inputRef={(node: HTMLElement) => {
+              //   fieldsRefs.current[index] = node;
+              // }}
             />
           ))
         ) : (
