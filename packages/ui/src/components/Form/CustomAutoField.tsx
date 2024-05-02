@@ -12,7 +12,7 @@ import { PropertiesField } from './properties/PropertiesField';
 import { CustomLongTextField } from './customField/CustomLongTextField';
 
 // Name of the properties that should load CustomLongTextField
-const CustomLongTextProps = ['Expression', 'Sasl Jaas Config'];
+const CustomLongTextProps = ['Expression', 'Description'];
 
 /**
  * Custom AutoField that supports all the fields from Uniforms PatternFly
