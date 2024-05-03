@@ -4,6 +4,7 @@ import { FunctionComponent, PropsWithChildren, useCallback, useContext } from 'r
 import { IDataTestID } from '../../../models';
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../providers/entities.provider';
+import { DeleteModalContext } from '../../../providers/delete-modal.provider';
 
 interface ItemDeleteStepProps extends PropsWithChildren<IDataTestID> {
   vizNode: IVisualizationNode;
@@ -11,8 +12,14 @@ interface ItemDeleteStepProps extends PropsWithChildren<IDataTestID> {
 
 export const ItemDeleteStep: FunctionComponent<ItemDeleteStepProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
+  const deleteModalCtx = useContext(DeleteModalContext);
 
-  const onRemoveNode = useCallback(() => {
+  const onRemoveNode = useCallback(async () => {
+    /** Open delete confirm modal, get the confirmation  */
+    const isDeleteConfirmed = await deleteModalCtx?.deleteConfirmation();
+
+    if (!isDeleteConfirmed) return;
+
     props.vizNode?.removeChild();
     entitiesContext?.updateEntitiesFromCamelResource();
   }, [entitiesContext, props.vizNode]);
