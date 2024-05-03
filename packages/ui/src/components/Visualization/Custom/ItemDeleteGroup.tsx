@@ -4,6 +4,7 @@ import { FunctionComponent, PropsWithChildren, useCallback, useContext } from 'r
 import { IDataTestID } from '../../../models';
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../providers/entities.provider';
+import { DeleteModalContext } from '../../../providers/delete-modal.provider';
 
 interface ItemDeleteGroupProps extends PropsWithChildren<IDataTestID> {
   vizNode: IVisualizationNode;
@@ -11,9 +12,15 @@ interface ItemDeleteGroupProps extends PropsWithChildren<IDataTestID> {
 
 export const ItemDeleteGroup: FunctionComponent<ItemDeleteGroupProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
+  const deleteModalContext = useContext(DeleteModalContext);
   const flowId = props.vizNode?.getBaseEntity()?.getId();
 
-  const onRemoveGroup = useCallback(() => {
+  const onRemoveGroup = useCallback(async () => {
+    /** Open delete confirm modal, get the confirmation  */
+    const isDeleteConfirmed = await deleteModalContext?.deleteConfirmation();
+
+    if (!isDeleteConfirmed) return;
+
     entitiesContext?.camelResource.removeEntity(flowId);
     entitiesContext?.updateEntitiesFromCamelResource();
   }, [entitiesContext, flowId]);
