@@ -21,6 +21,7 @@ import { ItemAddStep } from './ItemAddStep';
 import { ItemDeleteGroup } from './ItemDeleteGroup';
 import { ItemDeleteStep } from './ItemDeleteStep';
 import { ItemInsertStep } from './ItemInsertStep';
+import { ItemDeleteStepWithConfirm } from './ItemDeleteStepWithConfirm';
 import { ItemReplaceStep } from './ItemReplaceStep';
 
 interface CustomNodeProps extends WithSelectionProps {
@@ -136,9 +137,17 @@ export const CustomNodeWithSelection: typeof DefaultNode = withSelection()(
     }
 
     if (nodeInteractions.canRemoveStep) {
-      items.push(
-        <ItemDeleteStep key="context-menu-item-delete" data-testid="context-menu-item-delete" vizNode={vizNode} />,
-      );
+      nodeInteractions.canHaveChildren || nodeInteractions.canHaveSpecialChildren
+        ? items.push(
+            <ItemDeleteStepWithConfirm
+              key="context-menu-item-delete"
+              data-testid="context-menu-item-delete"
+              vizNode={vizNode}
+            />,
+          )
+        : items.push(
+            <ItemDeleteStep key="context-menu-item-delete" data-testid="context-menu-item-delete" vizNode={vizNode} />,
+          );
     }
     if (nodeInteractions.canRemoveFlow) {
       items.push(

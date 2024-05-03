@@ -6,27 +6,26 @@ import { IVisualizationNode } from '../../../models/visualization/base-visual-en
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { DeleteModalContext } from '../../../providers/delete-modal.provider';
 
-interface ItemDeleteGroupProps extends PropsWithChildren<IDataTestID> {
+interface ItemDeleteStepWithConfirmProps extends PropsWithChildren<IDataTestID> {
   vizNode: IVisualizationNode;
 }
 
-export const ItemDeleteGroup: FunctionComponent<ItemDeleteGroupProps> = (props) => {
+export const ItemDeleteStepWithConfirm: FunctionComponent<ItemDeleteStepWithConfirmProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
   const deleteModalCtx = useContext(DeleteModalContext);
-  const flowId = props.vizNode?.getBaseEntity()?.getId();
 
-  const onRemoveGroup = useCallback(async () => {
+  const onRemoveNode = useCallback(async () => {
     /** Open delete confirm modal, get the confirmation  */
     const isDeleteConfirmed = await deleteModalCtx?.deleteConfirmation();
 
     if (!isDeleteConfirmed) return;
 
-    entitiesContext?.camelResource.removeEntity(flowId);
+    props.vizNode?.removeChild();
     entitiesContext?.updateEntitiesFromCamelResource();
-  }, [entitiesContext, flowId]);
+  }, [entitiesContext, props.vizNode]);
 
   return (
-    <ContextMenuItem onClick={onRemoveGroup} data-testid={props['data-testid']}>
+    <ContextMenuItem onClick={onRemoveNode} data-testid={props['data-testid']}>
       <TrashIcon /> Delete
     </ContextMenuItem>
   );
