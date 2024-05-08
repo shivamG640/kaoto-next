@@ -18,14 +18,17 @@ export const ItemDeleteStep: FunctionComponent<ItemDeleteStepProps> = (props) =>
   const onRemoveNode = useCallback(async () => {
     if (props.loadModal) {
       /** Open delete confirm modal, get the confirmation  */
-      const isDeleteConfirmed = await deleteModalContext?.deleteConfirmation();
+      const isDeleteConfirmed = await deleteModalContext?.deleteConfirmation({
+        title: 'Permanently delete step',
+        text: 'Step parameters and its children will be lost.',
+      });
 
       if (!isDeleteConfirmed) return;
     }
 
     props.vizNode?.removeChild();
     entitiesContext?.updateEntitiesFromCamelResource();
-  }, [entitiesContext, props.vizNode]);
+  }, [deleteModalContext, entitiesContext, props.loadModal, props.vizNode]);
 
   return (
     <ContextMenuItem onClick={onRemoveNode} data-testid={props['data-testid']}>

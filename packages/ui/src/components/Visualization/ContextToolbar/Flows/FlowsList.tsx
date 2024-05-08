@@ -105,7 +105,10 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                 icon={<TrashIcon />}
                 variant="plain"
                 onClick={async (event) => {
-                  const isDeleteConfirmed = await deleteModalContext?.deleteConfirmation();
+                  const isDeleteConfirmed = await deleteModalContext?.deleteConfirmation({
+                    title: 'Permanently delete flow',
+                    text: 'Flow configuration and its children will be lost.',
+                  });
 
                   if (!isDeleteConfirmed) return;
 

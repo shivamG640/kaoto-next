@@ -1,6 +1,6 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { useContext } from 'react';
-import { DeleteModalContextProvider, DeleteModalContext } from './delete-modal.provider';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { FunctionComponent, useContext } from 'react';
+import { DeleteModalContext, DeleteModalContextProvider } from './delete-modal.provider';
 
 let deleteConfirmationResult: boolean | undefined;
 
@@ -12,7 +12,7 @@ describe('DeleteModalProvider', () => {
   it('calls deleteConfirmation with true when Confirm button is clicked', async () => {
     render(
       <DeleteModalContextProvider>
-        <TestComponent />
+        <TestComponent title="Permanently delete step" text="Step parameters and its children will be lost." />
       </DeleteModalContextProvider>,
     );
 
@@ -29,7 +29,7 @@ describe('DeleteModalProvider', () => {
   it('calls deleteConfirmation with false when Cancel button is clicked', async () => {
     render(
       <DeleteModalContextProvider>
-        <TestComponent />
+        <TestComponent title="Permanently delete step" text="Step parameters and its children will be lost." />
       </DeleteModalContextProvider>,
     );
 
@@ -42,13 +42,32 @@ describe('DeleteModalProvider', () => {
     // Wait for deleteConfirmation promise to resolve
     await waitFor(() => expect(deleteConfirmationResult).toEqual(false));
   });
+
+  it('should allow consumers to update the modal title and text', () => {
+    const wrapper = render(
+      <DeleteModalContextProvider>
+        <TestComponent title="Custom title" text="Custom text" />
+      </DeleteModalContextProvider>,
+    );
+
+    act(() => {
+      const deleteButton = wrapper.getByText('Delete');
+      fireEvent.click(deleteButton);
+    });
+
+    const modalDialog = wrapper.getByRole('dialog');
+    expect(modalDialog).toMatchSnapshot();
+
+    expect(wrapper.queryByText('Custom title')).toBeInTheDocument;
+    expect(wrapper.queryByText('Custom text')).toBeInTheDocument;
+  });
 });
 
-const TestComponent = () => {
+const TestComponent: FunctionComponent<{ title: string; text: string }> = (props) => {
   const { deleteConfirmation } = useContext(DeleteModalContext)!;
 
   const handleDelete = async () => {
-    const confirmation = await deleteConfirmation();
+    const confirmation = await deleteConfirmation(props);
     deleteConfirmationResult = confirmation;
   };
 

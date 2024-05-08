@@ -1,8 +1,8 @@
-import { Modal, ModalVariant, Button } from '@patternfly/react-core';
+import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, createContext, useCallback, useMemo, useRef, useState } from 'react';
 
 interface DeleteModalContextValue {
-  deleteConfirmation: () => Promise<boolean>;
+  deleteConfirmation: (options: { title?: string; text?: string }) => Promise<boolean>;
 }
 
 export const DeleteModalContext = createContext<DeleteModalContextValue | undefined>(undefined);
@@ -13,6 +13,8 @@ export const DeleteModalContext = createContext<DeleteModalContextValue | undefi
  */
 export const DeleteModalContextProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [title, setTitle] = useState('');
+  const [text, setText] = useState('');
 
   const deleteConfirmationRef = useRef<{
     resolve: (confirm: boolean) => void;
@@ -29,12 +31,14 @@ export const DeleteModalContextProvider: FunctionComponent<PropsWithChildren> = 
     deleteConfirmationRef.current?.resolve(true);
   }, []);
 
-  const deleteConfirmation = useCallback(() => {
+  const deleteConfirmation = useCallback((options: { title?: string; text?: string } = {}) => {
     const deleteConfirmationPromise = new Promise<boolean>((resolve, reject) => {
       /** Set both resolve and reject functions to be used once the user choose an action */
       deleteConfirmationRef.current = { resolve, reject };
     });
 
+    setTitle(options.title || 'Delete?');
+    setText(options.text || 'Are you sure you want to delete?');
     setIsModalOpen(true);
 
     return deleteConfirmationPromise;
@@ -44,7 +48,7 @@ export const DeleteModalContextProvider: FunctionComponent<PropsWithChildren> = 
     () => ({
       deleteConfirmation,
     }),
-    [],
+    [deleteConfirmation],
   );
 
   return (
@@ -53,9 +57,10 @@ export const DeleteModalContextProvider: FunctionComponent<PropsWithChildren> = 
 
       {isModalOpen && (
         <Modal
-          variant={ModalVariant.small}
-          title="Delete?"
           isOpen
+          variant={ModalVariant.small}
+          title={title}
+          titleIconVariant={'warning'}
           onClose={handleCloseModal}
           ouiaId="DeleteConfirmModal"
           actions={[
@@ -67,7 +72,7 @@ export const DeleteModalContextProvider: FunctionComponent<PropsWithChildren> = 
             </Button>,
           ]}
         >
-          Are you sure you want to delete?
+          {text}
         </Modal>
       )}
     </DeleteModalContext.Provider>

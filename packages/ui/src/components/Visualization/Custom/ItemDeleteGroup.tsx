@@ -3,8 +3,8 @@ import { ContextMenuItem } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext } from 'react';
 import { IDataTestID } from '../../../models';
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
-import { EntitiesContext } from '../../../providers/entities.provider';
 import { DeleteModalContext } from '../../../providers/delete-modal.provider';
+import { EntitiesContext } from '../../../providers/entities.provider';
 
 interface ItemDeleteGroupProps extends PropsWithChildren<IDataTestID> {
   vizNode: IVisualizationNode;
@@ -17,13 +17,16 @@ export const ItemDeleteGroup: FunctionComponent<ItemDeleteGroupProps> = (props) 
 
   const onRemoveGroup = useCallback(async () => {
     /** Open delete confirm modal, get the confirmation  */
-    const isDeleteConfirmed = await deleteModalContext?.deleteConfirmation();
+    const isDeleteConfirmed = await deleteModalContext?.deleteConfirmation({
+      title: 'Permanently delete flow',
+      text: 'Flow configuration and its children will be lost.',
+    });
 
     if (!isDeleteConfirmed) return;
 
     entitiesContext?.camelResource.removeEntity(flowId);
     entitiesContext?.updateEntitiesFromCamelResource();
-  }, [entitiesContext, flowId]);
+  }, [deleteModalContext, entitiesContext, flowId]);
 
   return (
     <ContextMenuItem onClick={onRemoveGroup} data-testid={props['data-testid']}>
