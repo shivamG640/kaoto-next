@@ -3,7 +3,16 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { SchemaService } from '../../../components/Form/schema.service';
-import { getArrayProperty, NodeIconResolver, ROOT_PATH } from '../../../utils';
+import {
+  getArrayProperty,
+  NodeIconResolver,
+  NodeIconType,
+  ROOT_PATH,
+  getCustomSchemaFromPipe,
+  updatePipeFromCustomSchema,
+  setValue,
+  getValue,
+} from '../../../utils';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
 import { PipeMetadata, PipeSpec, PipeStep } from '../../camel/entities/pipe-overrides';
@@ -18,6 +27,9 @@ import {
 import { createVisualizationNode } from '../visualization-node';
 import { KameletSchemaService } from './support/kamelet-schema.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
+import { KaotoSchemaDefinition } from '../../kaoto-schema';
+import { CamelCatalogService } from './camel-catalog.service';
+import { CatalogKind } from '../../catalog-kind';
 
 export class PipeVisualEntity implements BaseVisualCamelEntity {
   id: string;
@@ -48,6 +60,10 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   getNodeLabel(path?: string): string {
     if (!path) return '';
 
+    if (path === ROOT_PATH) {
+      return this.id;
+    }
+
     const stepModel = get(this.spec, path) as PipeStep;
     return KameletSchemaService.getNodeLabel(stepModel, path);
   }
@@ -61,6 +77,14 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
 
   getComponentSchema(path?: string): VisualComponentSchema | undefined {
     if (!path) return undefined;
+    if (path === ROOT_PATH) {
+      return {
+        title: 'Pipe',
+        schema: this.getRootPipeSchema(),
+        definition: getCustomSchemaFromPipe(this.metadata),
+      };
+    }
+
     const stepModel = get(this.spec, path) as PipeStep;
     return KameletSchemaService.getVisualComponentSchema(stepModel);
   }
@@ -73,11 +97,16 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     return this.spec;
   }
 
-  updateModel(path: string | undefined, value: unknown): void {
+  updateModel(path: string | undefined, value: Record<string, unknown>): void {
     if (!path) return;
 
-    const stepModel = get(this.spec, path) as PipeStep;
-    if (stepModel) set(stepModel, 'properties', value);
+    if (path === ROOT_PATH) {
+      updatePipeFromCustomSchema(this.metadata, value);
+      return;
+    }
+
+    const stepModel = getValue(this.spec, path) as PipeStep;
+    if (stepModel) setValue(stepModel, 'properties', value);
   }
 
   /**
@@ -178,15 +207,24 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   }
 
   toVizNode(): IVisualizationNode {
+    const pipeGroupNode = createVisualizationNode(this.id, {
+      path: ROOT_PATH,
+      entity: this,
+      isGroup: true,
+      icon: NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity),
+    });
+
     const sourceNode = this.getVizNodeFromStep(this.spec.source, 'source', true);
     const stepNodes = this.getVizNodesFromSteps(this.spec.steps);
     const sinkNode = this.getVizNodeFromStep(this.spec.sink, 'sink');
     /** If there are no steps, we link the `source` and the `sink` together */
 
+    pipeGroupNode.addChild(sourceNode);
+
     if (stepNodes.length === 0) {
       sourceNode.setNextNode(sinkNode);
       sinkNode.setPreviousNode(sourceNode);
-      return sourceNode;
+      return pipeGroupNode;
     }
 
     /** Connect the `source` with the first step */
@@ -203,7 +241,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
       sinkNode.setPreviousNode(lastStepNode);
     }
 
-    return sourceNode;
+    return pipeGroupNode;
   }
 
   private getVizNodeFromStep(step: PipeStep, path: string, isRoot = false): IVisualizationNode {
@@ -240,5 +278,18 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
       acc.push(vizNode);
       return acc;
     }, [] as IVisualizationNode[]);
+  }
+
+  private getRootPipeSchema(): KaotoSchemaDefinition['schema'] {
+    const rootPipeDefinition = CamelCatalogService.getComponent(CatalogKind.Entity, 'PipeConfiguration');
+
+    if (rootPipeDefinition === undefined) return {} as unknown as KaotoSchemaDefinition['schema'];
+
+    let schema = {} as unknown as KaotoSchemaDefinition['schema'];
+    if (rootPipeDefinition.propertiesSchema !== undefined) {
+      schema = rootPipeDefinition.propertiesSchema;
+    }
+
+    return schema;
   }
 }
