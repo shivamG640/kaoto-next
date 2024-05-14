@@ -17,7 +17,7 @@ describe('Pipe', () => {
 
   beforeEach(async () => {
     pipeCR = cloneDeep(pipeJson);
-    pipe = new PipeVisualEntity(pipeCR.spec!);
+    pipe = new PipeVisualEntity(pipeCR.spec!, pipeCR.metadata!);
     kameletCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
     CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletCatalogMap as Record<string, IKameletDefinition>);
   });
@@ -74,7 +74,7 @@ describe('Pipe', () => {
     it('should not update the model if no path is provided', () => {
       const originalObject = JSON.parse(JSON.stringify(pipeJson));
 
-      pipe.updateModel(undefined, undefined);
+      pipe.updateModel(undefined, undefined as unknown as Record<string, unknown>);
 
       expect(originalObject).toEqual(pipeJson);
     });
@@ -160,22 +160,23 @@ describe('Pipe', () => {
   });
 
   describe('toVizNode', () => {
-    it('should return the viz node and set the initial path to `source`', () => {
+    it('should return the viz node and set the initial path to `#`', () => {
       const vizNode = pipe.toVizNode();
 
       expect(vizNode).toBeDefined();
-      expect(vizNode.data.path).toEqual('source');
+      expect(vizNode.data.path).toEqual('#');
     });
 
     it('should use the uri as the node label', () => {
       const vizNode = pipe.toVizNode();
 
-      expect(vizNode.getNodeLabel()).toEqual('webhook-source');
+      expect(vizNode.getNodeLabel()).toEqual('webhook-binding');
     });
 
     it('should set the node labels as `Unknown` if the uri is not available', () => {
       pipe = new PipeVisualEntity({});
-      const sourceNode = pipe.toVizNode();
+
+      const sourceNode = pipe.toVizNode().getChildren()![0];
       const sinkNode = sourceNode.getNextNode();
 
       expect(sourceNode.getNodeLabel()).toEqual('source: Unknown');
@@ -185,15 +186,21 @@ describe('Pipe', () => {
     it('should populate the viz node chain with the steps', () => {
       const vizNode = pipe.toVizNode();
 
-      expect(vizNode.data.path).toEqual('source');
-      expect(vizNode.getNodeLabel()).toEqual('webhook-source');
+      expect(vizNode.data.path).toEqual('#');
+      expect(vizNode.getNodeLabel()).toEqual('webhook-binding');
       expect(vizNode.getPreviousNode()).toBeUndefined();
-      expect(vizNode.getNextNode()).toBeDefined();
+      expect(vizNode.getNextNode()).toBeUndefined();
+      expect(vizNode.getChildren()).toBeDefined();
 
-      const steps0 = vizNode.getNextNode()!;
+      const source = vizNode.getChildren()![0];
+      expect(source.getNodeLabel()).toEqual('webhook-source');
+      expect(source.getPreviousNode()).toBeUndefined();
+      expect(source.getNextNode()).toBeDefined();
+
+      const steps0 = source.getNextNode()!;
       expect(steps0.data.path).toEqual('steps.0');
       expect(steps0.getNodeLabel()).toEqual('delay-action');
-      expect(steps0.getPreviousNode()).toBe(vizNode);
+      expect(steps0.getPreviousNode()).toBe(source);
       expect(steps0.getNextNode()).toBeDefined();
 
       const sink = steps0.getNextNode()!;
