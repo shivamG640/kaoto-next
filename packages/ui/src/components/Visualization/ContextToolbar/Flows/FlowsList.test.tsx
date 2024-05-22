@@ -51,7 +51,7 @@ describe('FlowsList.tsx', () => {
       </Provider>,
     );
     const flow1 = await wrapper.findByText('route-1234');
-    const flow2 = await wrapper.findByText('routeConfiguration-1234');
+    const flow2 = await wrapper.findByText('routeConfigu...');
 
     expect(flow1).toBeInTheDocument();
     expect(flow2).toBeInTheDocument();

@@ -4,6 +4,7 @@ import { FunctionComponent, Ref, useCallback, useContext, useState } from 'react
 import { getVisibleFlowsInformation } from '../../../../models/visualization/flows/support/flows-visibility';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 import { FlowsList } from './FlowsList';
+import { doTruncateLabel } from '../../../../utils/truncate-label';
 
 export const FlowsMenu: FunctionComponent = () => {
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
@@ -37,7 +38,7 @@ export const FlowsMenu: FunctionComponent = () => {
               <ListIcon />
             </Icon>
             <span data-testid="flows-list-route-id" className="pf-v5-u-m-sm">
-              {visibleFlowsInformation().singleFlowId ?? 'Routes'}
+              {doTruncateLabel(visibleFlowsInformation().singleFlowId) ?? 'Routes'}
             </span>
             <Badge data-testid="flows-list-route-count" isRead>
               {visibleFlowsInformation().visibleFlowsCount}/{visibleFlowsInformation().totalFlowsCount}

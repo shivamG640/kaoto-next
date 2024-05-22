@@ -11,6 +11,7 @@ import './FlowsList.scss';
 import { FlowsListEmptyState } from './FlowsListEmptyState';
 import { RouteIdValidator } from '../../../InlineEdit/routeIdValidator';
 import { ValidationResult } from '../../../../models';
+import { doTruncateLabel } from '../../../../utils/truncate-label';
 
 interface IFlowsList {
   onClose?: () => void;
@@ -62,7 +63,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
             <Td dataLabel={columnNames.current.id}>
               <InlineEdit
                 data-testid={`goto-btn-${flow.id}`}
-                value={flow.id}
+                value={doTruncateLabel(flow.id)}
                 validator={routeIdValidator}
                 onClick={() => {
                   onSelectFlow(flow.id);

@@ -15,6 +15,7 @@ import { AddStepMode } from '../../../models/visualization/base-visual-entity';
 import { CanvasNode } from '../Canvas/canvas.models';
 import { ItemDeleteGroup } from './ItemDeleteGroup';
 import { ItemInsertStep } from './ItemInsertStep';
+import { doTruncateLabel } from '../../../utils/truncate-label';
 
 type IDefaultGroup = Parameters<typeof DefaultGroup>[0];
 interface ICustomGroup extends IDefaultGroup {
@@ -35,7 +36,7 @@ const CustomGroup: FunctionComponent<ICustomGroup> = observer(({ element, ...res
         <DefaultGroup
           {...rest}
           element={element}
-          label={label}
+          label={doTruncateLabel(label)}
           truncateLength={15}
           showLabel={true}
           collapsible
