@@ -20,7 +20,7 @@ import { FunctionComponent, Ref, useCallback, useEffect, useRef, useState } from
 import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
 import { SchemaService } from '../schema.service';
 import { MetadataEditor } from '../../MetadataEditor';
-import { ICamelDataformatDefinition } from '../../../models';
+import { ICamelDataformatDefinition, ICamelLoadBalancerDefinition } from '../../../models';
 import { JSONSchema4 } from 'json-schema';
 
 interface TypeaheadEditorProps {
@@ -30,7 +30,7 @@ interface TypeaheadEditorProps {
     description: string | undefined;
   }[];
   title: string;
-  selected: ICamelDataformatDefinition | undefined;
+  selected: ICamelDataformatDefinition | ICamelLoadBalancerDefinition | undefined;
   selectedSchema: JSONSchema4 | undefined;
   selectedModel: Record<string, unknown> | undefined;
   selectionOnChange: (selectedDataFormat: string, newDataFormatModel: Record<string, unknown>) => void;
