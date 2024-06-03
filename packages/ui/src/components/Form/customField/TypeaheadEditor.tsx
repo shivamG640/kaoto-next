@@ -20,7 +20,6 @@ import { FunctionComponent, Ref, useCallback, useEffect, useRef, useState } from
 import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
 import { SchemaService } from '../schema.service';
 import { MetadataEditor } from '../../MetadataEditor';
-import { ICamelDataformatDefinition, ICamelLoadBalancerDefinition } from '../../../models';
 import { JSONSchema4 } from 'json-schema';
 
 interface TypeaheadEditorProps {
@@ -30,17 +29,20 @@ interface TypeaheadEditorProps {
     description: string | undefined;
   }[];
   title: string;
-  selected: ICamelDataformatDefinition | ICamelLoadBalancerDefinition | undefined;
+  selected: { name: string; title: string } | undefined;
   selectedSchema: JSONSchema4 | undefined;
   selectedModel: Record<string, unknown> | undefined;
-  selectionOnChange: (selectedDataFormat: string, newDataFormatModel: Record<string, unknown>) => void;
+  selectionOnChange: (
+    selectedItem: { name: string; title: string } | undefined,
+    newItemModel: Record<string, unknown>,
+  ) => void;
 }
 
 export const TypeaheadEditor: FunctionComponent<TypeaheadEditorProps> = (props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
-  const [selected, setSelected] = useState<string>(props.selected?.model.name || '');
-  const [inputValue, setInputValue] = useState<string>(props.selected?.model.title || '');
+  const [selected, setSelected] = useState<string>(props.selected?.name || '');
+  const [inputValue, setInputValue] = useState<string>(props.selected?.title || '');
   const [filterValue, setFilterValue] = useState<string>('');
   const [selectOptions, setSelectOptions] = useState<SelectOptionProps[]>(props.catalog);
   const [focusedItemIndex, setFocusedItemIndex] = useState<number | null>(null);
@@ -48,7 +50,7 @@ export const TypeaheadEditor: FunctionComponent<TypeaheadEditorProps> = (props) 
   const textInputRef = useRef<HTMLInputElement>();
 
   useEffect(() => {
-    props.selected ? setSelected(props.selected.model.name) : setSelected('');
+    props.selected ? setSelected(props.selected.name) : setSelected('');
   }, [props.selected]);
 
   useEffect(() => {
@@ -91,7 +93,7 @@ export const TypeaheadEditor: FunctionComponent<TypeaheadEditorProps> = (props) 
       if (option && value !== 'no results') {
         setInputValue(value as string);
         setFilterValue('');
-        props.selectionOnChange(option!.value as string, {});
+        props.selectionOnChange({ name: option!.value as string, title: option!.children as string }, {});
         setSelected(option!.children as string);
       }
       setIsOpen(false);
@@ -200,7 +202,7 @@ export const TypeaheadEditor: FunctionComponent<TypeaheadEditorProps> = (props) 
                 setSelected('');
                 setInputValue('');
                 setFilterValue('');
-                props.selectionOnChange('', {});
+                props.selectionOnChange(undefined, {});
                 textInputRef?.current?.focus();
               }}
               aria-label="Clear input value"
@@ -250,12 +252,14 @@ export const TypeaheadEditor: FunctionComponent<TypeaheadEditorProps> = (props) 
               </Select>
               {props.selected && (
                 <MetadataEditor
-                  key={props.selected.model.name}
+                  key={props.selected!.name}
                   data-testid={`${props.title.toLowerCase().replace(' ', '')}-editor`}
                   name={`${props.title.toLowerCase().replace(' ', '')}`}
                   schema={props.selectedSchema}
                   metadata={props.selectedModel}
-                  onChangeModel={(model) => props.selectionOnChange(props.selected!.model.name, model)}
+                  onChangeModel={(model) =>
+                    props.selectionOnChange({ name: props.selected!.name, title: props.selected!.title }, model)
+                  }
                 />
               )}
             </CardBody>

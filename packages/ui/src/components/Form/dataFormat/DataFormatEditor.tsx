@@ -4,7 +4,6 @@ import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import './DataFormatEditor.scss';
 import { DataFormatService } from './dataformat.service';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
-import { ICamelDataformatDefinition } from '../../../models';
 
 interface DataFormatEditorProps {
   selectedNode: CanvasNode;
@@ -37,19 +36,32 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
     dataFormatCatalogMap,
     visualComponentSchema?.definition,
   );
-  const [selected, setSelected] = useState<ICamelDataformatDefinition | undefined>(dataFormat);
+  const dataFormatOption = dataFormat && {
+    name: dataFormat!.model.name,
+    title: dataFormat!.model.title,
+  };
+  const [selectedDataFormatOption, setSelectedDataFormatOption] = useState<{ name: string; title: string } | undefined>(
+    dataFormatOption,
+  );
 
   const dataFormatSchema = useMemo(() => {
     return DataFormatService.getDataFormatSchema(dataFormat);
   }, [dataFormat]);
 
   const handleOnChange = useCallback(
-    (selectedDataFormat: string, newDataFormatModel: Record<string, unknown>) => {
-      const newDataFormat = DataFormatService.getDefinitionFromModelName(dataFormatCatalogMap, selectedDataFormat);
-      setSelected(newDataFormat);
+    (
+      selectedDataFormatOption: { name: string; title: string } | undefined,
+      newDataFormatModel: Record<string, unknown>,
+    ) => {
+      setSelectedDataFormatOption(selectedDataFormatOption);
       const model = props.selectedNode.data?.vizNode?.getComponentSchema()?.definition;
       if (!model) return;
-      DataFormatService.setDataFormatModel(dataFormatCatalogMap, model, selectedDataFormat, newDataFormatModel);
+      DataFormatService.setDataFormatModel(
+        dataFormatCatalogMap,
+        model,
+        selectedDataFormatOption ? selectedDataFormatOption!.name : '',
+        newDataFormatModel,
+      );
       props.selectedNode.data?.vizNode?.updateModel(model);
       entitiesContext?.updateSourceCodeFromEntities();
     },
@@ -60,7 +72,7 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
     <TypeaheadEditor
       catalog={initialDataFormatOptions}
       title="Data Format"
-      selected={selected}
+      selected={selectedDataFormatOption}
       selectedModel={dataFormatModel}
       selectedSchema={dataFormatSchema}
       selectionOnChange={handleOnChange}

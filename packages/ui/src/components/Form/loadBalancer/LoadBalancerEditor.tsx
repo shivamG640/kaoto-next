@@ -3,7 +3,6 @@ import { EntitiesContext } from '../../../providers';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { LoadBalancerService } from './loadbalancer.service';
 import './LoadBalancerEditor.scss';
-import { ICamelLoadBalancerDefinition } from '../../../models/camel-loadbalancers-catalog';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
 
 interface LoadBalancerEditorProps {
@@ -37,25 +36,30 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
     loadBalancerCatalogMap,
     visualComponentSchema?.definition,
   );
-  const [selected, setSelected] = useState<ICamelLoadBalancerDefinition | undefined>(loadBalancer);
+  const loadBalancerOption = loadBalancer && {
+    name: loadBalancer!.model.name,
+    title: loadBalancer!.model.title,
+  };
+  const [selectedLoadBalancerOption, setSelectedLoadBalancerOption] = useState<
+    { name: string; title: string } | undefined
+  >(loadBalancerOption);
 
   const loadBalancerSchema = useMemo(() => {
     return LoadBalancerService.getLoadBalancerSchema(loadBalancer);
   }, [loadBalancer]);
 
   const handleOnChange = useCallback(
-    (selectedLoadBalancer: string, newLoadBalancerModel: Record<string, unknown>) => {
-      const newLoadBalancer = LoadBalancerService.getDefinitionFromModelName(
-        loadBalancerCatalogMap,
-        selectedLoadBalancer,
-      );
-      setSelected(newLoadBalancer);
+    (
+      selectedLoadBalancerOption: { name: string; title: string } | undefined,
+      newLoadBalancerModel: Record<string, unknown>,
+    ) => {
+      setSelectedLoadBalancerOption(selectedLoadBalancerOption);
       const model = props.selectedNode.data?.vizNode?.getComponentSchema()?.definition;
       if (!model) return;
       LoadBalancerService.setLoadBalancerModel(
         loadBalancerCatalogMap,
         model,
-        selectedLoadBalancer,
+        selectedLoadBalancerOption ? selectedLoadBalancerOption!.name : '',
         newLoadBalancerModel,
       );
       props.selectedNode.data?.vizNode?.updateModel(model);
@@ -68,7 +72,7 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
     <TypeaheadEditor
       catalog={initialLoadBalancerOptions}
       title="Load Balancer"
-      selected={selected}
+      selected={selectedLoadBalancerOption}
       selectedModel={loadBalancerModel}
       selectedSchema={loadBalancerSchema}
       selectionOnChange={handleOnChange}
