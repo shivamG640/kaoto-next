@@ -23,11 +23,7 @@ import { MetadataEditor } from '../../MetadataEditor';
 import { JSONSchema4 } from 'json-schema';
 
 interface TypeaheadEditorProps {
-  catalog: {
-    value: string;
-    children: string;
-    description: string | undefined;
-  }[];
+  selectOptions: SelectOptionProps[];
   title: string;
   selected: { name: string; title: string } | undefined;
   selectedSchema: JSONSchema4 | undefined;
@@ -44,7 +40,7 @@ export const TypeaheadEditor: FunctionComponent<TypeaheadEditorProps> = (props) 
   const [selected, setSelected] = useState<string>(props.selected?.name || '');
   const [inputValue, setInputValue] = useState<string>(props.selected?.title || '');
   const [filterValue, setFilterValue] = useState<string>('');
-  const [selectOptions, setSelectOptions] = useState<SelectOptionProps[]>(props.catalog);
+  const [selectOptions, setSelectOptions] = useState<SelectOptionProps[]>(props.selectOptions);
   const [focusedItemIndex, setFocusedItemIndex] = useState<number | null>(null);
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const textInputRef = useRef<HTMLInputElement>();
@@ -54,12 +50,12 @@ export const TypeaheadEditor: FunctionComponent<TypeaheadEditorProps> = (props) 
   }, [props.selected]);
 
   useEffect(() => {
-    let newSelectOptions: SelectOptionProps[] = props.catalog;
+    let newSelectOptions: SelectOptionProps[] = props.selectOptions;
 
     // Filter menu items based on the text input value when one exists
     if (filterValue) {
       const lowerFilterValue = filterValue.toLowerCase();
-      newSelectOptions = props.catalog.filter((menuItem) => {
+      newSelectOptions = props.selectOptions.filter((menuItem) => {
         return (
           String(menuItem.value).toLowerCase().includes(lowerFilterValue) ||
           String(menuItem.children).toLowerCase().includes(lowerFilterValue) ||
@@ -81,7 +77,7 @@ export const TypeaheadEditor: FunctionComponent<TypeaheadEditorProps> = (props) 
     setSelectOptions(newSelectOptions);
     setActiveItem(null);
     setFocusedItemIndex(null);
-  }, [filterValue, props.catalog, isOpen]);
+  }, [filterValue, props.selectOptions, isOpen]);
 
   const onToggleClick = useCallback(() => {
     setIsOpen(!isOpen);
@@ -216,7 +212,7 @@ export const TypeaheadEditor: FunctionComponent<TypeaheadEditorProps> = (props) 
   );
 
   return (
-    props.catalog && (
+    props.selectOptions && (
       <div className={`${props.title.toLowerCase().replace(' ', '')}-metadata-editor`}>
         <Card isCompact={true} isExpanded={isExpanded}>
           <CardHeader onExpand={() => setIsExpanded(!isExpanded)}>

@@ -1,8 +1,14 @@
-.pf-v5-c-menu {
-  max-height: 500px;
-  overflow-y: auto;
-}
+// .pf-v5-c-menu {
+//   max-height: 500px;
+//   overflow-y: auto;
+// }
 
-.metadata-editor {
-  margin-top: 24px;
+.expression-metadata-editor {
+  .pf-v5-c-form {
+    margin-top: 24px;
+  }
+
+  .pf-v5-c-card {
+    margin-bottom: 24px;
+  }
 }

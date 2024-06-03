@@ -1,3 +1,4 @@
+import { SelectOptionProps } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 import { EntitiesContext } from '../../../providers';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
@@ -15,7 +16,7 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
     return DataFormatService.getDataFormatMap();
   }, []);
 
-  const initialDataFormatOptions = useMemo(() => {
+  const initialDataFormatOptions: SelectOptionProps[] = useMemo(() => {
     return Object.values(dataFormatCatalogMap).map((option) => {
       return {
         value: option.model.name,
@@ -70,12 +71,12 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
 
   return (
     <TypeaheadEditor
-      catalog={initialDataFormatOptions}
+      selectOptions={initialDataFormatOptions}
       title="Data Format"
       selected={selectedDataFormatOption}
       selectedModel={dataFormatModel}
       selectedSchema={dataFormatSchema}
       selectionOnChange={handleOnChange}
-    ></TypeaheadEditor>
+    />
   );
 };

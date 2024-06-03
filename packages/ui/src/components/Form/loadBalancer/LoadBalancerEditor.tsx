@@ -1,3 +1,4 @@
+import { SelectOptionProps } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 import { EntitiesContext } from '../../../providers';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
@@ -16,7 +17,7 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
     return LoadBalancerService.getLoadBalancerMap();
   }, []);
 
-  const initialLoadBalancerOptions = useMemo(() => {
+  const initialLoadBalancerOptions: SelectOptionProps[] = useMemo(() => {
     return Object.values(loadBalancerCatalogMap).map((option) => {
       return {
         value: option.model.name,
@@ -70,12 +71,12 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
 
   return (
     <TypeaheadEditor
-      catalog={initialLoadBalancerOptions}
+      selectOptions={initialLoadBalancerOptions}
       title="Load Balancer"
       selected={selectedLoadBalancerOption}
       selectedModel={loadBalancerModel}
       selectedSchema={loadBalancerSchema}
       selectionOnChange={handleOnChange}
-    ></TypeaheadEditor>
+    />
   );
 };
