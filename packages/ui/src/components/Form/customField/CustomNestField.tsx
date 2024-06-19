@@ -18,11 +18,12 @@
  */
 
 import { Card, CardBody, CardHeader, CardTitle, ExpandableSection, capitalize } from '@patternfly/react-core';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { HTMLFieldProps, connectField, filterDOMProps } from 'uniforms';
 import { getFieldGroups } from '../../../utils';
 import { CustomAutoField } from '../CustomAutoField';
 import './CustomNestField.scss';
+import { FilteredFieldContext } from '../../../providers';
 
 export type CustomNestFieldProps = HTMLFieldProps<
   object,
@@ -43,9 +44,16 @@ export const CustomNestField = connectField(
     disabled,
     ...props
   }: CustomNestFieldProps) => {
+    const { filteredFieldText } = useContext(FilteredFieldContext);
+    const filteredProperties = Object.entries(props.properties ?? {}).filter((field) =>
+      field[0].toLowerCase().includes(filteredFieldText.toLowerCase()),
+    );
+    const actualProperties = Object.fromEntries(filteredProperties);
     const propertiesArray = useMemo(() => {
-      return getFieldGroups(props.properties ?? {});
-    }, [props.properties]);
+      return getFieldGroups(actualProperties);
+    }, [actualProperties]);
+
+    if (propertiesArray.common.length === 0 && Object.keys(propertiesArray.groups).length === 0) return null;
 
     return (
       <Card className="custom-nest-field" data-testid={'nest-field'} {...filterDOMProps(props)}>
