@@ -3,5 +3,9 @@
 
   &__body {
     overflow: auto;
+
+    .filter-fields {
+      margin-bottom: 25px;
+    }
   }
 }

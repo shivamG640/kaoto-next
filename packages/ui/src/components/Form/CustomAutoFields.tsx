@@ -1,10 +1,11 @@
 import { AutoField } from '@kaoto-next/uniforms-patternfly';
-import { ComponentType, createElement, useMemo } from 'react';
+import { ComponentType, createElement, useMemo, useContext } from 'react';
 import { useForm } from 'uniforms';
 import { KaotoSchemaDefinition } from '../../models';
 import { Card, CardBody, ExpandableSection, capitalize } from '@patternfly/react-core';
 import { getFieldGroups } from '../../utils';
 import { CatalogKind } from '../../models';
+import { FilteredFieldContext } from '../../providers';
 import './CustomAutoFields.scss';
 
 export type AutoFieldsProps = {
@@ -23,8 +24,11 @@ export function CustomAutoFields({
 }: AutoFieldsProps) {
   const { schema } = useForm();
   const rootField = schema.getField('');
+  const { filteredFieldText } = useContext(FilteredFieldContext);
 
-  const actualFields = (fields ?? schema.getSubfields()).filter((field) => !omitFields!.includes(field));
+  const actualFields = (fields ?? schema.getSubfields()).filter(
+    (field) => !omitFields!.includes(field) && (field === 'parameters' || field.includes(filteredFieldText)),
+  );
   const actualFieldsSchema = actualFields.reduce((acc: { [name: string]: unknown }, name) => {
     acc[name] = schema.getField(name);
     return acc;
