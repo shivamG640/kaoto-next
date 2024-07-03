@@ -5,9 +5,12 @@ import { KaotoSchemaDefinition } from '../../models';
 import { Card, CardBody } from '@patternfly/react-core';
 import { getFieldGroups } from '../../utils';
 import { CatalogKind } from '../../models';
-import { FilteredFieldContext } from '../../providers';
+import { FilteredFieldContext, FormTypeContext } from '../../providers';
 import './CustomAutoFields.scss';
 import { CustomExpandableSection } from './customField/CustomExpandableSection';
+import { getNonDefaultProperties } from '../../utils/get-non-default-properties';
+import { Schema } from 'yaml';
+import { getNonDefaultSchema } from '../../utils/get-non-default-schema';
 
 export type AutoFieldsProps = {
   autoField?: ComponentType<{ name: string }>;
@@ -23,16 +26,23 @@ export function CustomAutoFields({
   omitFields = [],
   ...props
 }: AutoFieldsProps) {
-  const { schema } = useForm();
+  const { schema, model } = useForm();
   const rootField = schema.getField('');
   const { filteredFieldText, isGroupExpanded } = useContext(FilteredFieldContext);
+  const { loadNonDefaultFieldsOnly } = useContext(FormTypeContext);
 
   /** Special handling for oneOf schemas */
   if (Array.isArray((rootField as KaotoSchemaDefinition['schema']).oneOf)) {
     return createElement(element, props, [createElement(autoField!, { key: '', name: '' })]);
   }
 
-  const actualFields = (fields ?? schema.getSubfields()).filter(
+  let fieldsToProcess = schema.getSubfields();
+  if (loadNonDefaultFieldsOnly) {
+    const nonDefaultsFields = getNonDefaultSchema(schema.schema.properties, model as Record<string, any>);
+    fieldsToProcess = nonDefaultsFields
+  }
+
+  const actualFields = (fields ?? fieldsToProcess).filter(
     (field) =>
       !omitFields!.includes(field) &&
       (field === 'parameters' || field.toLowerCase().includes(filteredFieldText.toLowerCase())),
