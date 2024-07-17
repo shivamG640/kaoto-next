@@ -12,10 +12,12 @@ import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import './DataFormatEditor.scss';
 import { DataFormatService } from './dataformat.service';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
-import { getSerializedModel } from '../../../utils';
+import { getSerializedModel, isDefined } from '../../../utils';
+import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
 
 interface DataFormatEditorProps {
   selectedNode: CanvasNode;
+  formMode: FormTabsModes;
 }
 
 export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props) => {
@@ -77,6 +79,8 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
     },
     [entitiesContext, dataFormatCatalogMap, props.selectedNode.data?.vizNode],
   );
+
+  if (props.formMode === FormTabsModes.USER_MODIFIED && !isDefined(selectedDataFormatOption)) return null;
 
   return (
     <div className="dataformat-metadata-editor">
