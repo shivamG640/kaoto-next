@@ -8,6 +8,7 @@ import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { MetadataEditor } from '../../MetadataEditor';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { DataFormatEditor } from './DataFormatEditor';
+import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
 
 describe('DataFormatEditor', () => {
   let mockNode: CanvasNode;
@@ -45,8 +46,14 @@ describe('DataFormatEditor', () => {
     };
   });
 
+  it('should not render', () => {
+    render(<DataFormatEditor selectedNode={mockNode} formMode={FormTabsModes.USER_MODIFIED} />);
+    const buttons = screen.queryAllByRole('button', { name: 'Menu toggle' });
+    expect(buttons).toHaveLength(0);
+  });
+
   it('should render', async () => {
-    render(<DataFormatEditor selectedNode={mockNode} />);
+    render(<DataFormatEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
     const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
@@ -58,7 +65,7 @@ describe('DataFormatEditor', () => {
   });
 
   it('should filter candidates with a text input', async () => {
-    render(<DataFormatEditor selectedNode={mockNode} />);
+    render(<DataFormatEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
     const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
@@ -74,7 +81,7 @@ describe('DataFormatEditor', () => {
   });
 
   it('should clear filter and close the dropdown with close button', async () => {
-    render(<DataFormatEditor selectedNode={mockNode} />);
+    render(<DataFormatEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
     const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
