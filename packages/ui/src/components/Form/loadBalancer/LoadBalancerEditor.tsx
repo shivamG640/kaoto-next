@@ -12,10 +12,12 @@ import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { LoadBalancerService } from './loadbalancer.service';
 import './LoadBalancerEditor.scss';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
-import { getSerializedModel } from '../../../utils';
+import { getSerializedModel, isDefined } from '../../../utils';
+import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
 
 interface LoadBalancerEditorProps {
   selectedNode: CanvasNode;
+  formMode: FormTabsModes;
 }
 
 export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (props) => {
@@ -77,6 +79,8 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
     },
     [entitiesContext, loadBalancerCatalogMap, props.selectedNode.data?.vizNode],
   );
+
+  if (props.formMode === FormTabsModes.USER_MODIFIED && !isDefined(selectedLoadBalancerOption)) return null;
 
   return (
     <div className="loadbalancer-metadata-editor">
