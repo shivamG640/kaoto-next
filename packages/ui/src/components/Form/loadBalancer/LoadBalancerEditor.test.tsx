@@ -8,6 +8,7 @@ import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { MetadataEditor } from '../../MetadataEditor';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { LoadBalancerEditor } from './LoadBalancerEditor';
+import { FormTabsModes } from '../../Visualization/Canvas/CanvasFormTabs';
 
 describe('LoadBalancerEditor', () => {
   let mockNode: CanvasNode;
@@ -47,7 +48,7 @@ describe('LoadBalancerEditor', () => {
   });
 
   it('should render', async () => {
-    render(<LoadBalancerEditor selectedNode={mockNode} />);
+    render(<LoadBalancerEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
     const buttons = screen.getAllByRole('button', { name: 'Menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
@@ -61,7 +62,7 @@ describe('LoadBalancerEditor', () => {
   });
 
   it('should filter candidates with a text input', async () => {
-    render(<LoadBalancerEditor selectedNode={mockNode} />);
+    render(<LoadBalancerEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
     const buttons = screen.getAllByRole('button', { name: 'Menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
@@ -77,7 +78,7 @@ describe('LoadBalancerEditor', () => {
   });
 
   it('should clear filter and close the dropdown with close button', async () => {
-    render(<LoadBalancerEditor selectedNode={mockNode} />);
+    render(<LoadBalancerEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
     const buttons = screen.getAllByRole('button', { name: 'Menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
