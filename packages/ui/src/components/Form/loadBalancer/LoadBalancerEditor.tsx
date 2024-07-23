@@ -12,7 +12,7 @@ import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { LoadBalancerService } from './loadbalancer.service';
 import './LoadBalancerEditor.scss';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
-import { getSerializedModel, isDefined } from '../../../utils';
+import { getSerializedModel, getUserUpdatedPropertiesSchema, isDefined } from '../../../utils';
 import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
 
 interface LoadBalancerEditorProps {
@@ -48,6 +48,7 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
     loadBalancerCatalogMap,
     visualComponentSchema?.definition,
   );
+
   const loadBalancerOption = loadBalancer && {
     name: loadBalancer!.model.name,
     title: loadBalancer!.model.title,
@@ -59,6 +60,14 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
   const loadBalancerSchema = useMemo(() => {
     return LoadBalancerService.getLoadBalancerSchema(loadBalancer);
   }, [loadBalancer]);
+
+  const processedSchema = useMemo(() => {
+    if (props.formMode === FormTabsModes.ALL_FIELDS) return loadBalancerSchema;
+    return {
+      ...loadBalancerSchema,
+      properties: getUserUpdatedPropertiesSchema(loadBalancerSchema?.properties ?? {}, loadBalancerModel ?? {}),
+    }
+  }, [props.formMode, loadBalancer]);
 
   const handleOnChange = useCallback(
     (
@@ -80,7 +89,12 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
     [entitiesContext, loadBalancerCatalogMap, props.selectedNode.data?.vizNode],
   );
 
-  if (props.formMode === FormTabsModes.USER_MODIFIED && !isDefined(selectedLoadBalancerOption)) return null;
+  const showEditor = useMemo(() => {
+    if (props.formMode === FormTabsModes.ALL_FIELDS) return true;
+    return props.formMode === FormTabsModes.USER_MODIFIED && isDefined(selectedLoadBalancerOption);
+  }, [props.formMode]);
+
+  if (!showEditor) return null;
 
   return (
     <div className="loadbalancer-metadata-editor">
@@ -95,7 +109,7 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
               title="loadbalancer"
               selected={selectedLoadBalancerOption}
               selectedModel={loadBalancerModel}
-              selectedSchema={loadBalancerSchema}
+              selectedSchema={processedSchema}
               selectionOnChange={handleOnChange}
             />
           </CardBody>
