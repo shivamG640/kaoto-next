@@ -2,7 +2,7 @@ import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { SchemaBridgeProvider } from '../../../providers/schema-bridge.provider';
-import { getUserUpdatedPropertiesSchema, isDefined, setValue } from '../../../utils';
+import { getUserUpdatedPropertiesSchema, getRequiredPropertiesSchema, isDefined, setValue } from '../../../utils';
 import { CustomAutoForm, CustomAutoFormRef } from '../../Form/CustomAutoForm';
 import { DataFormatEditor } from '../../Form/dataFormat/DataFormatEditor';
 import { LoadBalancerEditor } from '../../Form/loadBalancer/LoadBalancerEditor';
@@ -21,7 +21,7 @@ export const CanvasFormTabs: FunctionComponent<CanvasFormTabsProps> = (props) =>
   const divRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<CustomAutoFormRef>(null);
   const omitFields = useRef(props.selectedNode.data?.vizNode?.getBaseEntity()?.getOmitFormFields() || []);
-  const [selectedTab, setSelectedTab] = useState<FormTabsModes>(FormTabsModes.ALL_FIELDS);
+  const [selectedTab, setSelectedTab] = useState<FormTabsModes>(FormTabsModes.REQUIRED_FIELDS);
 
   const visualComponentSchema = useMemo(() => {
     const answer = props.selectedNode.data?.vizNode?.getComponentSchema();
@@ -33,7 +33,9 @@ export const CanvasFormTabs: FunctionComponent<CanvasFormTabsProps> = (props) =>
   }, [props.selectedNode.data?.vizNode, selectedTab]);
   const model = visualComponentSchema?.definition;
   let processedSchema = visualComponentSchema?.schema;
-  if (selectedTab === FormTabsModes.USER_MODIFIED) {
+  if (selectedTab === FormTabsModes.REQUIRED_FIELDS) {
+    processedSchema = getRequiredPropertiesSchema(visualComponentSchema?.schema ?? {});
+  } else if (selectedTab === FormTabsModes.USER_MODIFIED) {
     processedSchema = {
       ...visualComponentSchema?.schema,
       properties: getUserUpdatedPropertiesSchema(visualComponentSchema?.schema.properties ?? {}, model),

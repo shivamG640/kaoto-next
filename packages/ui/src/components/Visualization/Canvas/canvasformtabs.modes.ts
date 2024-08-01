@@ -1,4 +1,5 @@
 export enum FormTabsModes {
-  ALL_FIELDS = 'All Fields',
-  USER_MODIFIED = 'User Modified',
+  REQUIRED_FIELDS = 'Required',
+  ALL_FIELDS = 'All',
+  USER_MODIFIED = 'Modified',
 }
