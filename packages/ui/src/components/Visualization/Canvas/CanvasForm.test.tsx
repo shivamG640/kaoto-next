@@ -164,6 +164,11 @@ describe('CanvasForm', () => {
       </EntitiesProvider>,
     );
 
+    const allTab = screen.getByRole('button', { name: 'All' });
+    act(() => {
+      fireEvent.click(allTab);
+    });
+
     const idField = screen.getAllByLabelText('Description', { selector: 'textarea' })[0];
     act(() => {
       fireEvent.change(idField, { target: { value: '' } });
@@ -191,6 +196,11 @@ describe('CanvasForm', () => {
         </VisibleFlowsContext.Provider>
       </EntitiesProvider>,
     );
+
+    const allTab = screen.getByRole('button', { name: 'All' });
+    act(() => {
+      fireEvent.click(allTab);
+    });
 
     const idField = screen.getAllByLabelText('Description', { selector: 'textarea' })[0];
     act(() => {
@@ -220,6 +230,11 @@ describe('CanvasForm', () => {
         </VisibleFlowsContext.Provider>
       </EntitiesProvider>,
     );
+
+    const allTab = screen.getByRole('button', { name: 'All' });
+    act(() => {
+      fireEvent.click(allTab);
+    });
 
     const idField = screen.getAllByLabelText('Id', { selector: 'input' })[0];
     act(() => {

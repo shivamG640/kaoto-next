@@ -62,10 +62,10 @@ describe('CanvasFormTabs', () => {
         </EntitiesProvider>,
       );
 
-      const defaultTab = screen.getByRole('button', { name: 'All Fields' });
-      const modifiedTab = screen.getByRole('button', { name: 'User Modified' });
+      const allTab = screen.getByRole('button', { name: 'All' });
+      const modifiedTab = screen.getByRole('button', { name: 'Modified' });
 
-      expect(defaultTab).toBeInTheDocument();
+      expect(allTab).toBeInTheDocument();
       expect(modifiedTab).toBeInTheDocument();
 
       act(() => {
@@ -78,7 +78,7 @@ describe('CanvasFormTabs', () => {
       expect(inputVariableReceiveModifiedTabElement).toHaveLength(0);
 
       act(() => {
-        fireEvent.click(defaultTab);
+        fireEvent.click(allTab);
       });
 
       await act(async () => {
@@ -131,8 +131,8 @@ describe('CanvasFormTabs', () => {
         </EntitiesContext.Provider>,
       );
 
-      const defaultTab = screen.getByRole('button', { name: 'All Fields' });
-      const modifiedTab = screen.getByRole('button', { name: 'User Modified' });
+      const allTab = screen.getByRole('button', { name: 'All' });
+      const modifiedTab = screen.getByRole('button', { name: 'Modified' });
 
       act(() => {
         fireEvent.click(modifiedTab);
@@ -141,7 +141,7 @@ describe('CanvasFormTabs', () => {
       expect(screen.queryByTestId('launch-expression-modal-btn')).toBeNull();
 
       act(() => {
-        fireEvent.click(defaultTab);
+        fireEvent.click(allTab);
       });
 
       const launchExpressionDefaultTab = screen.getByTestId('launch-expression-modal-btn');
@@ -207,8 +207,8 @@ describe('CanvasFormTabs', () => {
         </EntitiesContext.Provider>,
       );
 
-      const defaultTab = screen.getByRole('button', { name: 'All Fields' });
-      const modifiedTab = screen.getByRole('button', { name: 'User Modified' });
+      const allTab = screen.getByRole('button', { name: 'All' });
+      const modifiedTab = screen.getByRole('button', { name: 'Modified' });
       act(() => {
         fireEvent.click(modifiedTab);
       });
@@ -216,7 +216,7 @@ describe('CanvasFormTabs', () => {
       expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeNull();
 
       act(() => {
-        fireEvent.click(defaultTab);
+        fireEvent.click(allTab);
       });
 
       const dataformatDefaultTabButton = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
@@ -240,7 +240,7 @@ describe('CanvasFormTabs', () => {
       expect(inputUnmarshalTypeModifiedTabElement).toHaveLength(0);
 
       act(() => {
-        fireEvent.click(defaultTab);
+        fireEvent.click(allTab);
       });
 
       await act(async () => {
@@ -294,8 +294,8 @@ describe('CanvasFormTabs', () => {
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
-      const defaultTab = screen.getByRole('button', { name: 'All Fields' });
-      const modifiedTab = screen.getByRole('button', { name: 'User Modified' });
+      const allTab = screen.getByRole('button', { name: 'All' });
+      const modifiedTab = screen.getByRole('button', { name: 'Modified' });
       act(() => {
         fireEvent.click(modifiedTab);
       });
@@ -303,7 +303,7 @@ describe('CanvasFormTabs', () => {
       expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeNull();
 
       act(() => {
-        fireEvent.click(defaultTab);
+        fireEvent.click(allTab);
       });
 
       const button = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
@@ -327,7 +327,7 @@ describe('CanvasFormTabs', () => {
       expect(inputDistributionRatioModifiedTabElement).toHaveLength(0);
 
       act(() => {
-        fireEvent.click(defaultTab);
+        fireEvent.click(allTab);
       });
 
       await act(async () => {
@@ -524,6 +524,11 @@ describe('CanvasFormTabs', () => {
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
+      const allTab = screen.getByRole('button', { name: 'All' });
+      act(() => {
+        fireEvent.click(allTab);
+      });
+
       const button = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
       await act(async () => {
         fireEvent.click(button[0]);
@@ -574,6 +579,12 @@ describe('CanvasFormTabs', () => {
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
+
+      const allTab = screen.getByRole('button', { name: 'All' });
+      act(() => {
+        fireEvent.click(allTab);
+      });
+
       const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
       await act(async () => {
         fireEvent.input(idInput[0], { target: { value: 'modified' } });
@@ -630,6 +641,12 @@ describe('CanvasFormTabs', () => {
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
+
+      const allTab = screen.getByRole('button', { name: 'All' });
+      act(() => {
+        fireEvent.click(allTab);
+      });
+
       const button = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
       await act(async () => {
         fireEvent.click(button[0]);
@@ -680,6 +697,12 @@ describe('CanvasFormTabs', () => {
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
+
+      const allTab = screen.getByRole('button', { name: 'All' });
+      act(() => {
+        fireEvent.click(allTab);
+      });
+
       const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
       await act(async () => {
         fireEvent.input(idInput[0], { target: { value: 'modified' } });
