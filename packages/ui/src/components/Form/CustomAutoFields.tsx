@@ -2,12 +2,13 @@ import { AutoField } from '@kaoto-next/uniforms-patternfly';
 import { ComponentType, createElement, useContext } from 'react';
 import { useForm } from 'uniforms';
 import { KaotoSchemaDefinition } from '../../models';
-import { Card, CardBody } from '@patternfly/react-core';
+import { Card, CardBody, Alert } from '@patternfly/react-core';
 import { getFieldGroups } from '../../utils';
 import { CatalogKind } from '../../models';
 import { FilteredFieldContext } from '../../providers';
 import './CustomAutoFields.scss';
 import { CustomExpandableSection } from './customField/CustomExpandableSection';
+import { NoFieldFound } from './NoFieldFound';
 
 export type AutoFieldsProps = {
   autoField?: ComponentType<{ name: string }>;
@@ -42,6 +43,10 @@ export function CustomAutoFields({
   }, {});
   const propertiesArray = getFieldGroups(actualFieldsSchema);
 
+  if (propertiesArray.common.length === 0 && Object.keys(propertiesArray.groups).length === 0) {
+    return <NoFieldFound />
+  }
+  
   return createElement(
     element,
     props,
