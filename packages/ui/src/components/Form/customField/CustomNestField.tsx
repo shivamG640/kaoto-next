@@ -25,7 +25,6 @@ import { CustomAutoField } from '../CustomAutoField';
 import './CustomNestField.scss';
 import { FilteredFieldContext } from '../../../providers';
 import { CustomExpandableSection } from './CustomExpandableSection';
-import { NoFieldFound } from '../NoFieldFound';
 
 export type CustomNestFieldProps = HTMLFieldProps<
   object,
@@ -54,8 +53,7 @@ export const CustomNestField = connectField(
     const actualProperties = Object.fromEntries(filteredProperties);
     const propertiesArray = getFieldGroups(actualProperties);
 
-    if (propertiesArray.common.length === 0 && Object.keys(propertiesArray.groups).length === 0)
-      return <NoFieldFound />;
+    if (propertiesArray.common.length === 0 && Object.keys(propertiesArray.groups).length === 0) return null;
 
     return (
       <Card className="custom-nest-field" data-testid={'nest-field'} {...filterDOMProps(props)}>
