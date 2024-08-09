@@ -12,12 +12,7 @@ import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { LoadBalancerService } from './loadbalancer.service';
 import './LoadBalancerEditor.scss';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
-import {
-  getRequiredPropertiesSchema,
-  getSerializedModel,
-  getUserUpdatedPropertiesSchema,
-  isDefined,
-} from '../../../utils';
+import { getSerializedModel, getUserUpdatedPropertiesSchema, isDefined } from '../../../utils';
 import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
 
 interface LoadBalancerEditorProps {
@@ -67,16 +62,11 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
   }, [loadBalancer]);
 
   const processedSchema = useMemo(() => {
-    if (props.formMode === FormTabsModes.REQUIRED_FIELDS) {
-      return getRequiredPropertiesSchema(loadBalancerSchema ?? {});
-    } else if (props.formMode === FormTabsModes.ALL_FIELDS) {
-      return loadBalancerSchema;
-    } else if (props.formMode === FormTabsModes.USER_MODIFIED) {
-      return {
-        ...loadBalancerSchema,
-        properties: getUserUpdatedPropertiesSchema(loadBalancerSchema?.properties ?? {}, loadBalancerModel ?? {}),
-      };
-    }
+    if (props.formMode === FormTabsModes.ALL_FIELDS) return loadBalancerSchema;
+    return {
+      ...loadBalancerSchema,
+      properties: getUserUpdatedPropertiesSchema(loadBalancerSchema?.properties ?? {}, loadBalancerModel ?? {}),
+    };
   }, [props.formMode, loadBalancer]);
 
   const handleOnChange = useCallback(
@@ -100,7 +90,7 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
   );
 
   const showEditor = useMemo(() => {
-    if (props.formMode === FormTabsModes.ALL_FIELDS || props.formMode === FormTabsModes.REQUIRED_FIELDS) return true;
+    if (props.formMode === FormTabsModes.ALL_FIELDS) return true;
     return props.formMode === FormTabsModes.USER_MODIFIED && isDefined(selectedLoadBalancerOption);
   }, [props.formMode]);
 

@@ -1,7 +1,8 @@
-import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
+import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { SchemaBridgeProvider } from '../../../providers/schema-bridge.provider';
-import { getUserUpdatedPropertiesSchema, getRequiredPropertiesSchema, isDefined, setValue } from '../../../utils';
+import { getUserUpdatedPropertiesSchema, isDefined, setValue } from '../../../utils';
 import { CustomAutoForm, CustomAutoFormRef } from '../../Form/CustomAutoForm';
 import { DataFormatEditor } from '../../Form/dataFormat/DataFormatEditor';
 import { LoadBalancerEditor } from '../../Form/loadBalancer/LoadBalancerEditor';
@@ -10,7 +11,6 @@ import { UnknownNode } from '../Custom/UnknownNode';
 import './CanvasFormTabs.scss';
 import { CanvasNode } from './canvas.models';
 import { FormTabsModes } from './canvasformtabs.modes';
-import { CanvasFormTabsContext } from '../../../providers/canvas-form-tabs.provider';
 
 interface CanvasFormTabsProps {
   selectedNode: CanvasNode;
@@ -18,10 +18,10 @@ interface CanvasFormTabsProps {
 
 export const CanvasFormTabs: FunctionComponent<CanvasFormTabsProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
-  const { selectedTab } = useContext(CanvasFormTabsContext);
   const divRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<CustomAutoFormRef>(null);
   const omitFields = useRef(props.selectedNode.data?.vizNode?.getBaseEntity()?.getOmitFormFields() || []);
+  const [selectedTab, setSelectedTab] = useState<FormTabsModes>(FormTabsModes.ALL_FIELDS);
 
   const visualComponentSchema = useMemo(() => {
     const answer = props.selectedNode.data?.vizNode?.getComponentSchema();
@@ -33,14 +33,18 @@ export const CanvasFormTabs: FunctionComponent<CanvasFormTabsProps> = (props) =>
   }, [props.selectedNode.data?.vizNode, selectedTab]);
   const model = visualComponentSchema?.definition;
   let processedSchema = visualComponentSchema?.schema;
-  if (selectedTab === FormTabsModes.REQUIRED_FIELDS) {
-    processedSchema = getRequiredPropertiesSchema(visualComponentSchema?.schema ?? {});
-  } else if (selectedTab === FormTabsModes.USER_MODIFIED) {
+  if (selectedTab === FormTabsModes.USER_MODIFIED) {
     processedSchema = {
       ...visualComponentSchema?.schema,
       properties: getUserUpdatedPropertiesSchema(visualComponentSchema?.schema.properties ?? {}, model),
     };
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleItemClick = (event: any, _isSelected: boolean) => {
+    const id = event.currentTarget.id;
+    setSelectedTab(id);
+  };
 
   useEffect(() => {
     formRef.current?.form.reset();
@@ -83,6 +87,17 @@ export const CanvasFormTabs: FunctionComponent<CanvasFormTabsProps> = (props) =>
         <UnknownNode model={model} />
       ) : (
         <SchemaBridgeProvider schema={processedSchema} parentRef={divRef}>
+          <ToggleGroup aria-label="Single selectable form tabs" className="form-tabs">
+            {Object.values(FormTabsModes).map((mode) => (
+              <ToggleGroupItem
+                key={mode}
+                text={mode}
+                buttonId={mode}
+                isSelected={selectedTab === mode}
+                onChange={handleItemClick}
+              />
+            ))}
+          </ToggleGroup>
           {stepFeatures.isExpressionAwareStep && (
             <StepExpressionEditor selectedNode={props.selectedNode} formMode={selectedTab} />
           )}

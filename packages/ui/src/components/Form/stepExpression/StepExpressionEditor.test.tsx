@@ -46,32 +46,14 @@ describe('StepExpressionEditor', () => {
     };
   });
 
-  it('should not render under Modified tab', () => {
+  it('should not render', () => {
     render(<StepExpressionEditor selectedNode={mockNode} formMode={FormTabsModes.USER_MODIFIED} />);
     const launcherButton = screen.queryAllByRole('button', { name: 'Configure Expression' });
     expect(launcherButton).toHaveLength(0);
   });
 
-  it('should render under all Tab', async () => {
+  it('should render', async () => {
     render(<StepExpressionEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
-    const launcherButton = screen.getAllByRole('button', { name: 'Configure Expression' });
-    await act(async () => {
-      fireEvent.click(launcherButton[0]);
-    });
-    const dropdown = screen
-      .getAllByTestId('typeahead-select-input')
-      .filter((input) => input.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
-    await act(async () => {
-      fireEvent.click(dropdown[0]);
-    });
-    const jsonpath = screen.getByTestId('expression-dropdownitem-jsonpath');
-    fireEvent.click(jsonpath.getElementsByTagName('button')[0]);
-    const form = screen.getByTestId('metadata-editor-form-expression');
-    expect(form.innerHTML).toContain('Suppress Exceptions');
-  });
-
-  it('should render under Required Tab', async () => {
-    render(<StepExpressionEditor selectedNode={mockNode} formMode={FormTabsModes.REQUIRED_FIELDS} />);
     const launcherButton = screen.getAllByRole('button', { name: 'Configure Expression' });
     await act(async () => {
       fireEvent.click(launcherButton[0]);

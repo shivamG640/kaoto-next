@@ -12,12 +12,7 @@ import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import './DataFormatEditor.scss';
 import { DataFormatService } from './dataformat.service';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
-import {
-  getRequiredPropertiesSchema,
-  getSerializedModel,
-  getUserUpdatedPropertiesSchema,
-  isDefined,
-} from '../../../utils';
+import { getSerializedModel, getUserUpdatedPropertiesSchema, isDefined } from '../../../utils';
 import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
 
 interface DataFormatEditorProps {
@@ -66,16 +61,11 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
   }, [dataFormat]);
 
   const processedSchema = useMemo(() => {
-    if (props.formMode === FormTabsModes.REQUIRED_FIELDS) {
-      return getRequiredPropertiesSchema(dataFormatSchema ?? {});
-    } else if (props.formMode === FormTabsModes.ALL_FIELDS) {
-      return dataFormatSchema;
-    } else if (props.formMode === FormTabsModes.USER_MODIFIED) {
-      return {
-        ...dataFormatSchema,
-        properties: getUserUpdatedPropertiesSchema(dataFormatSchema?.properties ?? {}, dataFormatModel ?? {}),
-      };
-    }
+    if (props.formMode === FormTabsModes.ALL_FIELDS) return dataFormatSchema;
+    return {
+      ...dataFormatSchema,
+      properties: getUserUpdatedPropertiesSchema(dataFormatSchema?.properties ?? {}, dataFormatModel ?? {}),
+    };
   }, [props.formMode, dataFormat]);
 
   const handleOnChange = useCallback(
@@ -99,7 +89,7 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
   );
 
   const showEditor = useMemo(() => {
-    if (props.formMode === FormTabsModes.ALL_FIELDS || props.formMode === FormTabsModes.REQUIRED_FIELDS) return true;
+    if (props.formMode === FormTabsModes.ALL_FIELDS) return true;
     return props.formMode === FormTabsModes.USER_MODIFIED && isDefined(selectedDataFormatOption);
   }, [props.formMode]);
 

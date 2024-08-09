@@ -1,4 +1,3 @@
-export * from './canvas-form-tabs.provider';
 export * from './catalog-modal.provider';
 export * from './catalog-tiles.provider';
 export * from './catalog.provider';
