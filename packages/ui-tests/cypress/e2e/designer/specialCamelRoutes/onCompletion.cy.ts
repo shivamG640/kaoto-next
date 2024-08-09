@@ -10,7 +10,6 @@ describe('Test for onCompletion configuration container', () => {
       .find('.pf-topology__node__label')
       .find('.pf-topology__node__label__background')
       .click();
-    cy.selectFormTab('All');
 
     cy.interactWithConfigInputObject('description', 'testDescription');
     cy.interactWithConfigInputObject('onCompleteOnly');

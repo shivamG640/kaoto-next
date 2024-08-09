@@ -13,7 +13,6 @@ describe('Test for node bean reference and configuration support', () => {
       cy.openDesignPage();
 
       cy.openStepConfigurationTab('sql');
-      cy.selectFormTab('All');
       cy.configureNewBeanReference('parameters.dataSource');
       cy.get(`input[name="name"]`).clear().type('test');
       cy.get(`input[name="type"]`).clear().type('org.acme');
@@ -56,7 +55,6 @@ describe('Test for node bean reference and configuration support', () => {
 
       cy.openDesignPage();
       cy.openStepConfigurationTab('sql');
-      cy.selectFormTab('All');
       cy.configureBeanReference('parameters.dataSource', data.dataSource);
       cy.openSourceCode();
 
@@ -70,14 +68,12 @@ describe('Test for node bean reference and configuration support', () => {
 
       cy.openDesignPage();
       cy.openStepConfigurationTab('sql');
-      cy.selectFormTab('All');
       cy.configureBeanReference('parameters.dataSource', data.dataSource);
       cy.openSourceCode();
       cy.checkCodeSpanLine('dataSource: "' + data.dataSource + '"');
 
       cy.openDesignPage();
       cy.openStepConfigurationTab('sql');
-      cy.selectFormTab('All');
       cy.deselectNodeBean('parameters.dataSource');
       cy.openSourceCode();
       cy.checkCodeSpanLine('dataSource: "' + data.dataSource + '"', 0);
@@ -89,7 +85,6 @@ describe('Test for node bean reference and configuration support', () => {
     cy.uploadFixture('flows/camelRoute/sqlBeans.yaml');
     cy.openDesignPage();
     cy.openStepConfigurationTab('sql');
-    cy.selectFormTab('All');
     cy.configureBeanReference('parameters.dataSource', 'postgreSqlSource');
 
     cy.openBeans();
@@ -98,7 +93,6 @@ describe('Test for node bean reference and configuration support', () => {
     cy.get('[data-testid="metadata-row-1"]').should('not.exist');
     cy.openDesignPage();
     cy.openStepConfigurationTab('sql');
-    cy.selectFormTab('All');
     cy.get(`div[data-fieldname="parameters.dataSource"] input[value="#postgreSqlSource"]`).should('not.exist');
   });
 });

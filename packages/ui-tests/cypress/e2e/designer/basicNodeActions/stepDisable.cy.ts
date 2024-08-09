@@ -9,7 +9,6 @@ describe('Tests for Design page', () => {
 
     cy.selectDisableNode('setHeader');
     cy.openStepConfigurationTab('setHeader');
-    cy.selectFormTab('All');
     cy.checkConfigCheckboxObject('disabled', true);
 
     cy.openSourceCode();

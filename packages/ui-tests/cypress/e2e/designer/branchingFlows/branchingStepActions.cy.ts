@@ -8,7 +8,6 @@ describe('User completes normal actions on steps in a branch', () => {
     cy.openDesignPage();
 
     cy.openStepConfigurationTab('marshal');
-    cy.selectFormTab('All');
     cy.interactWithConfigInputObject('allowJmsType');
     cy.interactWithConfigInputObject('collectionType', 'collection Type');
 

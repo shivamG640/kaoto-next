@@ -17,7 +17,6 @@ describe('Test URI node config', () => {
       cy.checkNodeExist('file', 1);
 
       cy.openStepConfigurationTab('timer');
-      cy.selectFormTab('All');
       cy.checkConfigInputObject('parameters.period', '1000');
       cy.checkConfigInputObject('parameters.delay', '2000');
       cy.checkConfigInputObject('parameters.repeatCount', '10');
@@ -50,7 +49,6 @@ describe('Test URI node config', () => {
 
     // CHECK the aws2-s3 properties
     cy.openStepConfigurationTab('aws2-s3');
-    cy.selectFormTab('All');
     cy.checkConfigCheckboxObject('parameters.autoCreateBucket', true);
     cy.checkConfigInputObject('parameters.bucketNameOrArn', 'testBucket');
   });
@@ -71,7 +69,6 @@ describe('Test URI node config', () => {
 
     // CHECK the aws2-s3 properties
     cy.openStepConfigurationTab('aws2-s3');
-    cy.selectFormTab('All');
     cy.checkConfigCheckboxObject('parameters.autoCreateBucket', true);
     cy.checkConfigInputObject('parameters.bucketNameOrArn', 'testBucket');
   });
