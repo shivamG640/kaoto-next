@@ -47,6 +47,12 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     <ErrorBoundary key={props.selectedNode.id} fallback={<p>This node cannot be configured yet</p>}>
       <Card className="canvas-form">
         <CardHeader>
+          <CanvasFormHeader
+            nodeId={props.selectedNode.id}
+            title={title}
+            onClose={onClose}
+            nodeIcon={props.selectedNode.data?.vizNode?.data?.icon}
+          />
           <ToggleGroup aria-label="Single selectable form tabs" className="form-tabs">
             {Object.values(FormTabsModes).map((mode) => (
               <Tooltip content={getTabTooltip(mode)}>
@@ -67,12 +73,6 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
             value={filteredFieldText}
             onChange={onFilterChange}
             onClear={onFilterChange}
-          />
-          <CanvasFormHeader
-            nodeId={props.selectedNode.id}
-            title={title}
-            onClose={onClose}
-            nodeIcon={props.selectedNode.data?.vizNode?.data?.icon}
           />
         </CardHeader>
 
