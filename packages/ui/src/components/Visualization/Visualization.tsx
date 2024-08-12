@@ -20,7 +20,7 @@ export const Visualization: FunctionComponent<PropsWithChildren<CanvasProps>> = 
     <div className={`canvas-surface ${props.className ?? ''}`}>
       <ErrorBoundary key={lastUpdate} fallback={props.fallback ?? <CanvasFallback />}>
         <CanvasFormTabsProvider>
-        <Canvas contextToolbar={<ContextToolbar />} entities={props.entities} />
+          <Canvas contextToolbar={<ContextToolbar />} entities={props.entities} />
         </CanvasFormTabsProvider>
       </ErrorBoundary>
     </div>
