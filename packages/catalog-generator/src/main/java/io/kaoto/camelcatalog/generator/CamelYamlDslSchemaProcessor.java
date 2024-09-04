@@ -581,6 +581,7 @@ public class CamelYamlDslSchemaProcessor {
             propToRemove.forEach(yamlInProperties::remove);
             populateDefinitions(yamlInDefinition, relocatedDefinitions);
             sanitizeDefinitions(yamlInFQCN, yamlInDefinition);
+            yamlInDefinition.put("$schema", "http://json-schema.org/draft-07/schema#");
             answer.put(yamlInName, yamlInDefinition);
         }
         return answer;
