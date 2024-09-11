@@ -12,7 +12,7 @@ import {
 import { INodeMapper } from '../node-mapper';
 
 export class BaseNodeMapper implements INodeMapper {
-  constructor(private readonly rootNodeMapper: INodeMapper) {}
+  constructor(protected readonly rootNodeMapper: INodeMapper) {}
 
   getVizNodeFromProcessor(
     path: string,
@@ -39,7 +39,6 @@ export class BaseNodeMapper implements INodeMapper {
 
     childrenStepsProperties.forEach((stepsProperty) => {
       const childrenVizNodes = this.getVizNodesFromChildren(path, stepsProperty, entityDefinition);
-
       childrenVizNodes.forEach((childVizNode) => {
         vizNode.addChild(childVizNode);
       });
@@ -54,7 +53,6 @@ export class BaseNodeMapper implements INodeMapper {
     entityDefinition: unknown,
   ): IVisualizationNode[] {
     const subpath = `${path}.${stepsProperty.name}`;
-
     switch (stepsProperty.type) {
       case 'branch':
         return this.getChildrenFromBranch(subpath, entityDefinition);
