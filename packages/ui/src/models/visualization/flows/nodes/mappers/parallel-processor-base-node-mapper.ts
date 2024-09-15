@@ -45,8 +45,29 @@ export abstract class ParallelProcessorBaseNodeMapper extends BaseNodeMapper {
       );
 
       const vizNode = this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition);
+      this.addNodeInteraction(vizNode, childComponentLookup.processorName as keyof ProcessorDefinition);
       accStepsNodes.push(vizNode);
       return accStepsNodes;
     }, [] as IVisualizationNode[]);
+  }
+
+  addNodeInteraction(vizNode: IVisualizationNode, processorName: keyof ProcessorDefinition): void {
+    const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(processorName);
+    const canHaveChildren = stepsProperties.find((property) => property.type === 'branch') !== undefined;
+    const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
+    const canReplaceStep = CamelComponentSchemaService.canReplaceStep(processorName);
+    const canRemoveStep = !CamelComponentSchemaService.DISABLED_REMOVE_STEPS.includes(processorName);
+    const canBeDisabled = CamelComponentSchemaService.canBeDisabled(processorName);
+
+    vizNode.addNodeInteraction({
+      canHavePreviousStep: false,
+      canHaveNextStep: false,
+      canRemoveFlow: false,
+      canHaveChildren,
+      canHaveSpecialChildren,
+      canReplaceStep,
+      canRemoveStep,
+      canBeDisabled,
+    });
   }
 }

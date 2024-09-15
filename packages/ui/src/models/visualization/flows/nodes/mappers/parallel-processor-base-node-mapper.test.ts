@@ -1,3 +1,4 @@
+import { createVisualizationNode } from '../../../visualization-node';
 import { ICamelElementLookupResult } from '../../support/camel-component-types';
 import { RootNodeMapper } from '../root-node-mapper';
 import { LoadBalanceNodeMapper } from './loadbalance-node-mapper';
@@ -7,6 +8,80 @@ describe('ParallelProcessorBaseNodeMapper', () => {
   let mapper: MulticastNodeMapper | LoadBalanceNodeMapper;
   let path: string;
   let routeDefinition: unknown;
+
+  const testGetVizNodeFromProcessor = (processorName: string) => {
+    it(`should return a VisualizationNode for ${processorName}`, () => {
+      routeDefinition = {
+        from: {
+          uri: 'timer:timerName',
+          steps: [
+            {
+              [processorName]: {
+                id: `${processorName}-test`,
+              },
+            },
+          ],
+        },
+      };
+      const vizNode = mapper.getVizNodeFromProcessor(path, {} as ICamelElementLookupResult, routeDefinition);
+
+      expect(vizNode).toBeDefined();
+      expect(vizNode.data).toMatchObject({
+        path,
+        icon: expect.any(String),
+        processorName,
+        isGroup: true,
+      });
+    });
+
+    it(`should return a VisualizationNode with children for ${processorName}`, () => {
+      routeDefinition = {
+        from: {
+          uri: 'timer:timerName',
+          steps: [
+            {
+              [processorName]: {
+                id: `${processorName}-123`,
+                steps: [
+                  {
+                    log: {
+                      id: 'log-123',
+                      message: 'test',
+                    },
+                  },
+                  {
+                    log: {
+                      id: 'log-456',
+                      message: 'test',
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      };
+
+      const vizNode = mapper.getVizNodeFromProcessor(path, {} as ICamelElementLookupResult, routeDefinition);
+      expect(vizNode.getChildren()).toHaveLength(2);
+      expect(vizNode.getChildren()?.[0].getNextNode()).toBeUndefined();
+      expect(vizNode.getChildren()?.[1].getPreviousNode()).toBeUndefined();
+    });
+  };
+
+  // Common test logic for `addNodeInteraction`
+  const testAddNodeInteraction = () => {
+    it('should not allow child nodes to have previous/next steps', () => {
+      const ParentVizNode = createVisualizationNode('test', {});
+      const childVizNode = createVisualizationNode('child', {});
+      ParentVizNode.addChild(childVizNode);
+      mapper.addNodeInteraction(ParentVizNode, 'log');
+
+      expect(ParentVizNode.getChildren()).toHaveLength(1);
+      expect(ParentVizNode.getChildren()?.[0].getNodeInteraction().canHavePreviousStep).toEqual(false);
+      expect(ParentVizNode.getChildren()?.[0].getNodeInteraction().canHaveNextStep).toEqual(false);
+    });
+  };
 
   describe('with multicast', () => {
     beforeEach(() => {
@@ -19,63 +94,11 @@ describe('ParallelProcessorBaseNodeMapper', () => {
     });
 
     describe('getVizNodeFromProcessor', () => {
-      it('should return a VisualizationNode', () => {
-        routeDefinition = {
-          from: {
-            uri: 'timer:timerName',
-            steps: [
-              {
-                multicast: {
-                  id: 'multicast-123',
-                },
-              },
-            ],
-          },
-        };
-        const vizNode = mapper.getVizNodeFromProcessor(path, {} as ICamelElementLookupResult, routeDefinition);
+      testGetVizNodeFromProcessor('multicast');
+    });
 
-        expect(vizNode).toBeDefined();
-        expect(vizNode.data).toMatchObject({
-          path,
-          icon: expect.any(String),
-          processorName: 'multicast',
-          isGroup: true,
-        });
-      });
-
-      it('should return a VisualizationNode with children', () => {
-        routeDefinition = {
-          from: {
-            uri: 'timer:timerName',
-            steps: [
-              {
-                multicast: {
-                  id: 'multicast-123',
-                  steps: [
-                    {
-                      log: {
-                        id: 'log-123',
-                        message: 'test',
-                      },
-                    },
-                    {
-                      log: {
-                        id: 'log-456',
-                        message: 'test',
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
-        };
-
-        const vizNode = mapper.getVizNodeFromProcessor(path, {} as ICamelElementLookupResult, routeDefinition);
-        expect(vizNode.getChildren()).toHaveLength(2);
-        expect(vizNode.getChildren()?.[0].getNextNode()).toBeUndefined();
-        expect(vizNode.getChildren()?.[1].getPreviousNode()).toBeUndefined();
-      });
+    describe('addNodeInteraction', () => {
+      testAddNodeInteraction();
     });
   });
 
@@ -90,63 +113,11 @@ describe('ParallelProcessorBaseNodeMapper', () => {
     });
 
     describe('getVizNodeFromProcessor', () => {
-      it('should return a VisualizationNode', () => {
-        routeDefinition = {
-          from: {
-            uri: 'timer:timerName',
-            steps: [
-              {
-                loadBalance: {
-                  id: 'loadBalance-123',
-                },
-              },
-            ],
-          },
-        };
-        const vizNode = mapper.getVizNodeFromProcessor(path, {} as ICamelElementLookupResult, routeDefinition);
+      testGetVizNodeFromProcessor('loadBalance');
+    });
 
-        expect(vizNode).toBeDefined();
-        expect(vizNode.data).toMatchObject({
-          path,
-          icon: expect.any(String),
-          processorName: 'loadBalance',
-          isGroup: true,
-        });
-      });
-
-      it('should return a VisualizationNode with children', () => {
-        routeDefinition = {
-          from: {
-            uri: 'timer:timerName',
-            steps: [
-              {
-                loadBalance: {
-                  id: 'loadBalance-123',
-                  steps: [
-                    {
-                      log: {
-                        id: 'log-123',
-                        message: 'test',
-                      },
-                    },
-                    {
-                      log: {
-                        id: 'log-456',
-                        message: 'test',
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
-        };
-
-        const vizNode = mapper.getVizNodeFromProcessor(path, {} as ICamelElementLookupResult, routeDefinition);
-        expect(vizNode.getChildren()).toHaveLength(2);
-        expect(vizNode.getChildren()?.[0].getNextNode()).toBeUndefined();
-        expect(vizNode.getChildren()?.[1].getPreviousNode()).toBeUndefined();
-      });
+    describe('addNodeInteraction', () => {
+      testAddNodeInteraction();
     });
   });
 });

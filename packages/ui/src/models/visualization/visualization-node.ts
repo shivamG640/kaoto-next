@@ -25,6 +25,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   private previousNode: IVisualizationNode | undefined = undefined;
   private nextNode: IVisualizationNode | undefined = undefined;
   private children: IVisualizationNode[] | undefined;
+  private nodeInteraction: NodeInteraction | undefined = undefined;
   private readonly DISABLED_NODE_INTERACTION: NodeInteraction = {
     canHavePreviousStep: false,
     canHaveNextStep: false,
@@ -58,7 +59,13 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getNodeInteraction(): NodeInteraction {
-    return this.getBaseEntity()?.getNodeInteraction(this.data) ?? this.DISABLED_NODE_INTERACTION;
+    return (
+      this.nodeInteraction ?? this.getBaseEntity()?.getNodeInteraction(this.data) ?? this.DISABLED_NODE_INTERACTION
+    );
+  }
+
+  addNodeInteraction(nodeInteraction: NodeInteraction): void {
+    this.nodeInteraction = nodeInteraction;
   }
 
   getComponentSchema(): VisualComponentSchema | undefined {
