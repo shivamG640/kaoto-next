@@ -1,58 +1,58 @@
 import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, createContext, useCallback, useMemo, useRef, useState } from 'react';
 
-interface DeleteModalContextValue {
-  deleteConfirmation: (options: { title?: string; text?: string }) => Promise<boolean>;
+interface ActionModalContextValue {
+  actionConfirmation: (options: { title?: string; text?: string }) => Promise<boolean>;
 }
 
-export const DeleteModalContext = createContext<DeleteModalContextValue | undefined>(undefined);
+export const ActionModalContext = createContext<ActionModalContextValue | undefined>(undefined);
 
 /**
- * This provider is used to open the Delete Confirmation modal.
- * The modal loads when the user clicks on the delete Routes/Kamelets of remove any Step from the Context Menu.
+ * This provider is used to open the Action Confirmation modal.
+ * The modal loads when the user clicks on the delete Routes/Kamelets of remove/replace any Step from the Context Menu.
  */
-export const DeleteModalContextProvider: FunctionComponent<PropsWithChildren> = (props) => {
+export const ActionModalContextProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
 
-  const deleteConfirmationRef = useRef<{
+  const actionConfirmationRef = useRef<{
     resolve: (confirm: boolean) => void;
     reject: (error: unknown) => unknown;
   }>();
 
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
-    deleteConfirmationRef.current?.resolve(false);
+    actionConfirmationRef.current?.resolve(false);
   }, []);
 
-  const handleDeleteConfirm = useCallback(() => {
+  const handleActionConfirm = useCallback(() => {
     setIsModalOpen(false);
-    deleteConfirmationRef.current?.resolve(true);
+    actionConfirmationRef.current?.resolve(true);
   }, []);
 
-  const deleteConfirmation = useCallback((options: { title?: string; text?: string } = {}) => {
-    const deleteConfirmationPromise = new Promise<boolean>((resolve, reject) => {
+  const actionConfirmation = useCallback((options: { title?: string; text?: string } = {}) => {
+    const actionConfirmationPromise = new Promise<boolean>((resolve, reject) => {
       /** Set both resolve and reject functions to be used once the user choose an action */
-      deleteConfirmationRef.current = { resolve, reject };
+      actionConfirmationRef.current = { resolve, reject };
     });
 
     setTitle(options.title || 'Delete?');
     setText(options.text || 'Are you sure you want to delete?');
     setIsModalOpen(true);
 
-    return deleteConfirmationPromise;
+    return actionConfirmationPromise;
   }, []);
 
-  const value: DeleteModalContextValue = useMemo(
+  const value: ActionModalContextValue = useMemo(
     () => ({
-      deleteConfirmation,
+      actionConfirmation: actionConfirmation,
     }),
-    [deleteConfirmation],
+    [actionConfirmation],
   );
 
   return (
-    <DeleteModalContext.Provider value={value}>
+    <ActionModalContext.Provider value={value}>
       {props.children}
 
       {isModalOpen && (
@@ -62,9 +62,9 @@ export const DeleteModalContextProvider: FunctionComponent<PropsWithChildren> = 
           title={title}
           titleIconVariant={'warning'}
           onClose={handleCloseModal}
-          ouiaId="DeleteConfirmModal"
+          ouiaId="ActionConfirmModal"
           actions={[
-            <Button key="confirm" variant="danger" onClick={handleDeleteConfirm}>
+            <Button key="confirm" variant="danger" onClick={handleActionConfirm}>
               Confirm
             </Button>,
             <Button key="cancel" variant="link" onClick={handleCloseModal}>
@@ -75,6 +75,6 @@ export const DeleteModalContextProvider: FunctionComponent<PropsWithChildren> = 
           {text}
         </Modal>
       )}
-    </DeleteModalContext.Provider>
+    </ActionModalContext.Provider>
   );
 };

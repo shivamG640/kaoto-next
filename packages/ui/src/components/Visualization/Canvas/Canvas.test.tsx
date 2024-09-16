@@ -7,7 +7,7 @@ import { TestProvidersWrapper } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { kameletJson } from '../../../stubs/kamelet-route';
 import { Canvas } from './Canvas';
-import { DeleteModalContextProvider } from '../../../providers';
+import { ActionModalContextProvider } from '../../../providers';
 
 describe('Canvas', () => {
   const entity = new CamelRouteVisualEntity(camelRouteJson);
@@ -56,11 +56,11 @@ describe('Canvas', () => {
       } as unknown as VisibleFLowsContextResult,
     });
     const wrapper = render(
-      <DeleteModalContextProvider>
+      <ActionModalContextProvider>
         <Provider>
           <Canvas entities={routeEntities} />
         </Provider>
-      </DeleteModalContextProvider>,
+      </ActionModalContextProvider>,
     );
 
     // Right click anywhere on the container label
@@ -103,11 +103,11 @@ describe('Canvas', () => {
     });
 
     const wrapper = render(
-      <DeleteModalContextProvider>
+      <ActionModalContextProvider>
         <Provider>
           <Canvas entities={kameletEntities} />
         </Provider>
-      </DeleteModalContextProvider>,
+      </ActionModalContextProvider>,
     );
 
     // Right click anywhere on the container label
