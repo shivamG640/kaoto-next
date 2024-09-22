@@ -66,12 +66,7 @@ describe('ActionConfirmationModalProvider', () => {
   });
 });
 
-interface TestComponentProps {
-  title: string;
-  text: string;
-}
-
-const TestComponent: FunctionComponent<TestComponentProps> = (props) => {
+const TestComponent: FunctionComponent<{ title: string; text: string }> = (props) => {
   const { actionConfirmation: deleteConfirmation } = useContext(ActionConfirmationModalContext)!;
 
   const handleDelete = async () => {
