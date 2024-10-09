@@ -250,6 +250,7 @@ public class CamelCatalogProcessor {
             catalogMap.put(modelCatalog.getName(), camelCatalog.eipModel(name));
         }
         for (var entry : languageSchemaMap.entrySet()) {
+            List<String> required = new ArrayList<>();
             var languageName = entry.getKey();
             var languageSchema = entry.getValue();
             EipModel eipModel = catalogMap.get(languageName);
@@ -267,6 +268,16 @@ public class CamelCatalogProcessor {
             var json = JsonMapper.asJsonObject(languageCatalog).toJson();
             var catalogTree = (ObjectNode) jsonMapper.readTree(json);
             catalogTree.set("propertiesSchema", languageSchema);
+            // setting required property to the language schema
+            var camelYamlDslProperties = languageSchema.withObject("/properties").properties().stream()
+                    .map(Map.Entry::getKey).toList();
+            for (var propertyName : camelYamlDslProperties) {
+                var catalogPropertySchema = catalogTree.withObject("/properties").withObject("/" + propertyName);
+                if (catalogPropertySchema.has("required") && catalogPropertySchema.get("required").asBoolean()) {
+                    required.add(propertyName);
+                }
+            }
+            catalogTree.withObject("/propertiesSchema").set("required", jsonMapper.valueToTree(required));
             answer.set(languageName, catalogTree);
         }
         StringWriter writer = new StringWriter();
