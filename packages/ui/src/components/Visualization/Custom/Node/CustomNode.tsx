@@ -3,6 +3,13 @@ import { BanIcon } from '@patternfly/react-icons';
 import {
   Decorator,
   DefaultNode,
+  DragObjectWithType,
+  DragSourceSpec,
+  DragSpecOperationType,
+  DropTargetSpec,
+  EditableDragOperationType,
+  GraphElement,
+  GraphElementProps,
   Node,
   NodeStatus,
   ScaleDetailsLevel,
@@ -11,6 +18,8 @@ import {
   useSelection,
   withContextMenu,
   withSelection,
+  withDndDrop,
+  withDragNode,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
 import { FunctionComponent, useContext } from 'react';
@@ -87,6 +96,60 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...r
   );
 });
 
-export const CustomNodeWithSelection: typeof DefaultNode = withSelection()(
-  withContextMenu(NodeContextMenuFn)(CustomNode as typeof DefaultNode),
+const nodeDropTargetSpec: DropTargetSpec<
+GraphElement,
+any,
+{},
+GraphElementProps
+> = {
+      accept: ['#node#'],
+      canDrop: (item, monitor, props) => {
+        const targetNode = props.element as Node;
+        const draggedNode = monitor.getItem() as Node;
+        // Ensure that the node is not dropped onto itself
+        return draggedNode !== targetNode;
+      },
+      drop: (item, monitor, props) => {
+        const draggedNode = item as Node;
+        const targetNode = props.element as Node;
+        // console.log(targetNode);
+        // console.log(draggedNode);
+        // Swap the positions of the dragged and target nodes
+        targetNode.getData().vizNode.rearrangeSteps(draggedNode.getData().vizNode);
+
+        return targetNode;
+      }
+    };
+
+    const nodeDragSourceSpec: DragSourceSpec<
+    DragObjectWithType,
+    DragSpecOperationType<EditableDragOperationType>,
+    GraphElement,
+    {},
+    GraphElementProps
+  > = {
+      item: { type: '#node#' },
+      begin: (monitor, props) => {
+        const node = props.element as Node;
+
+        // Hide connected edges when dragging starts
+        // node.getSourceEdges().forEach((edge) => edge.setVisible(false));
+        // node.getTargetEdges().forEach((edge) => edge.setVisible(false));
+        return props.element;
+      },
+      end: (dropResult, monitor, props) => {
+        const node = props.element as Node;
+        // reshuffle nodes
+        if (monitor.didDrop() && dropResult && props) {
+          // console.log(dropResult, node);
+        }
+
+        // Show edges again after dropping
+        // node.getSourceEdges().forEach((edge) => edge.setVisible(true));
+        // node.getTargetEdges().forEach((edge) => edge.setVisible(true));
+      },
+    };
+
+export const CustomNodeWithSelection = withSelection()(withDndDrop(nodeDropTargetSpec)(withDragNode(nodeDragSourceSpec
+  )(withContextMenu(NodeContextMenuFn)(CustomNode as typeof DefaultNode))),
 ) as typeof DefaultNode;
