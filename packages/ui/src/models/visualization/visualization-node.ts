@@ -64,6 +64,10 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     this.getBaseEntity()?.addStep({ definedComponent: definition, mode, data: this.data });
   }
 
+  rearrangeSteps(node: IVisualizationNode<IVisualizationNodeData>): void {
+    this.getBaseEntity()?.rearrangeSteps({ nodeData: node, data: this.data });
+  }
+
   getNodeInteraction(): NodeInteraction {
     return (
       this.nodeInteraction ?? this.getBaseEntity()?.getNodeInteraction(this.data) ?? this.DISABLED_NODE_INTERACTION

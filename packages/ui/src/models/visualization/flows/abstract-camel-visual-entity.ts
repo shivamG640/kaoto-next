@@ -139,6 +139,36 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     }
   }
 
+  rearrangeSteps(options: { nodeData: IVisualizationNode<IVisualizationNodeData>; data: IVisualizationNodeData; }) {
+    // const eventNotifier = EventNotifier.getInstance();
+
+    if (options.data.path === undefined || options.nodeData.data.path === undefined) return;
+
+    const pathArray = options.data.path.split('.');
+    const last = pathArray[pathArray.length - 1];
+    const penultimate = pathArray[pathArray.length - 2];
+
+    // This logic only works when both dragged and dropped target node is processor
+    if (!Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate))) {
+      const componentPath = options.nodeData.data.path.split('.');
+      const componentModel = getValue(this.entityDef, componentPath?.slice(0, -1));
+
+      // remove the dragged node
+      this.removeStep(options.nodeData.data.path);
+
+      // add the dragged node before the drop target
+      const desiredStartIndex = Number(penultimate);
+
+      const stepsArray: ProcessorDefinition[] = getValue(this.entityDef, pathArray.slice(0, -2), []);
+      stepsArray.splice(desiredStartIndex, 0, componentModel);
+
+      // const code = [{ route: this.entityDef }];
+      // console.log(this.entityDef);
+      // eventNotifier.next('entities:updated', stringify(code));
+      return;
+    }
+  };
+
   removeStep(path?: string): void {
     if (!path) return;
     const pathArray = path.split('.');
