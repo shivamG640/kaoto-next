@@ -21,6 +21,7 @@ import {
   Layout,
   LEFT_TO_RIGHT,
   ModelKind,
+  Node,
   TOP_TO_BOTTOM,
   Visualization as TopologyVisualization,
   withPanZoom,
@@ -95,13 +96,13 @@ export const Visualization: FunctionComponent<PropsWithChildren<CanvasProps>> = 
 
   const nodeDropTargetSpec: DropTargetSpec<GraphElement, unknown, object, GraphElementProps> = {
     accept: ['#node#'],
-    canDrop: (item, monitor, props) => {
+    canDrop: (_item, monitor, props) => {
       const targetNode = props.element as Node;
       const draggedNode = monitor.getItem() as Node;
       // Ensure that the node is not dropped onto itself
       return draggedNode !== targetNode;
     },
-    drop: (item, monitor, props) => {
+    drop: (item, _monitor, props) => {
       const draggedNode = item as Node;
       const targetNode = props.element as Node;
 
@@ -123,8 +124,8 @@ export const Visualization: FunctionComponent<PropsWithChildren<CanvasProps>> = 
     GraphElementProps
   > = {
     item: { type: '#node#' },
-    begin: (monitor, props) => {
-      const node = props.element as Node;
+    begin: (_monitor, props) => {
+      // const node = props.element as Node;
 
       // Hide connected edges when dragging starts
       // node.getSourceEdges().forEach((edge) => edge.setVisible(false));
@@ -132,7 +133,7 @@ export const Visualization: FunctionComponent<PropsWithChildren<CanvasProps>> = 
       return props.element;
     },
     end: (dropResult, monitor, props) => {
-      const node = props.element as Node;
+      // const node = props.element as Node;
       // reshuffle nodes
       if (monitor.didDrop() && dropResult && props) {
         // console.log(dropResult, node);
