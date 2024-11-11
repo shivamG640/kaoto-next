@@ -163,6 +163,11 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     }
   }
 
+  rearrangeSteps(_options: { nodeData: IVisualizationNode<IVisualizationNodeData>; data: IVisualizationNodeData }) {
+    // TBD
+    return;
+  }
+
   removeStep(path?: string): void {
     /** This method needs to be enabled after passing the entire parent to this class*/
     if (!path) return;

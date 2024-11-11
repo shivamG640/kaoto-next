@@ -87,6 +87,6 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...r
   );
 });
 
-export const CustomNodeWithSelection = withSelection()(
+export const CustomNodeWithSelection: typeof DefaultNode = withSelection()(
   withContextMenu(NodeContextMenuFn)(CustomNode as typeof DefaultNode),
 ) as typeof DefaultNode;

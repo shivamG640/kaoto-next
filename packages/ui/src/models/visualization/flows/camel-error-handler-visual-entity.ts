@@ -84,6 +84,11 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
     return;
   }
 
+  rearrangeSteps(_options: { nodeData: IVisualizationNode<IVisualizationNodeData>; data: IVisualizationNodeData }) {
+    // TBD
+    return;
+  }
+
   removeStep(): void {
     return;
   }
