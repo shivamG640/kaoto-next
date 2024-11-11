@@ -45,10 +45,7 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   }) => void;
 
   /** Add a step to the underlying Camel entity */
-  rearrangeSteps: (options: {
-    nodeData: IVisualizationNode;
-    data: IVisualizationNodeData;
-  }) => void;
+  rearrangeSteps: (options: { nodeData: IVisualizationNode; data: IVisualizationNodeData }) => void;
 
   /** Remove the step at a given path from the underlying Camel entity */
   removeStep: (path?: string) => void;
