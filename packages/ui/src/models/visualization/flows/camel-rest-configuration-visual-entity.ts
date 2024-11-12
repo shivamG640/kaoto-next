@@ -69,8 +69,11 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
     return;
   }
 
-  rearrangeSteps(_options: { nodeData: IVisualizationNode<IVisualizationNodeData>; data: IVisualizationNodeData }) {
-    // TBD
+  isDraggableNode(_path?: string | undefined) {
+    return false;
+  }
+
+  switchSteps(_options: { draggedNodePath: string; droppedNodePath?: string | undefined }) {
     return;
   }
 

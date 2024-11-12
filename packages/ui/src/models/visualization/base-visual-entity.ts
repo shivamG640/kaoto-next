@@ -44,8 +44,11 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
     targetProperty?: string;
   }) => void;
 
-  /** Add a step to the underlying Camel entity */
-  rearrangeSteps: (options: { nodeData: IVisualizationNode; data: IVisualizationNodeData }) => void;
+  /** Check if the node is draggable */
+  isDraggableNode: (path?: string) => boolean;
+
+  /** Switch steps */
+  switchSteps: (options: { draggedNodePath: string; droppedNodePath?: string }) => void;
 
   /** Remove the step at a given path from the underlying Camel entity */
   removeStep: (path?: string) => void;
@@ -94,7 +97,9 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   addBaseEntityStep(definedComponent: DefinedComponent, mode: AddStepMode, targetProperty?: string): void;
 
-  rearrangeSteps(node: IVisualizationNode): void;
+  canDragNode(): boolean | undefined;
+
+  switchSteps(path: string): void;
 
   getNodeInteraction(): NodeInteraction;
 

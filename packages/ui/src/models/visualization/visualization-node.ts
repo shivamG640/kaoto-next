@@ -64,8 +64,12 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     this.getBaseEntity()?.addStep({ definedComponent: definition, mode, data: this.data });
   }
 
-  rearrangeSteps(node: IVisualizationNode<IVisualizationNodeData>): void {
-    this.getBaseEntity()?.rearrangeSteps({ nodeData: node, data: this.data });
+  canDragNode(): boolean | undefined {
+    return this.getBaseEntity()?.isDraggableNode(this.data.path);
+  }
+
+  switchSteps(path: string): void {
+    this.getBaseEntity()?.switchSteps({ draggedNodePath: path, droppedNodePath: this.data.path });
   }
 
   getNodeInteraction(): NodeInteraction {

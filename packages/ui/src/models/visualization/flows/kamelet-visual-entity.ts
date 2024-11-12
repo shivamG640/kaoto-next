@@ -93,10 +93,6 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     super.addStep(options);
   }
 
-  rearrangeSteps(options: { nodeData: IVisualizationNode<IVisualizationNodeData>; data: IVisualizationNodeData }) {
-    super.rearrangeSteps(options);
-  }
-
   removeStep(path?: string): void {
     if (!path) return;
     /**
