@@ -51,6 +51,10 @@
       [data-disabled='true'] & {
         @include custom.disabled;
       }
+
+      &__dropTarget {
+        border: 4px dashed var(--custom-node-BorderColor);
+      }
     }
   }
 
