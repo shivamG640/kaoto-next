@@ -55,6 +55,18 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     this.getBaseEntity()?.addStep({ definedComponent: definition, mode, data: this.data });
   }
 
+  canDragNode(): boolean | undefined {
+    return this.getBaseEntity()?.isDraggableNode(this.data.path);
+  }
+
+  switchGroupSteps(path: string): void {
+    this.getBaseEntity()?.switchGroupSteps({ draggedNodePath: path, droppedNodeData: this.data });
+  }
+
+  switchSteps(path: string): void {
+    this.getBaseEntity()?.switchSteps({ draggedNodePath: path, droppedNodePath: this.data.path });
+  }
+
   getNodeInteraction(): NodeInteraction {
     return this.getBaseEntity()?.getNodeInteraction(this.data) ?? this.DISABLED_NODE_INTERACTION;
   }

@@ -15,6 +15,7 @@ export const useCollapseStep = (element: GraphElement<ElementModel, unknown>) =>
           element.setDimensions(new Dimensions(CanvasDefaults.DEFAULT_NODE_WIDTH, CanvasDefaults.DEFAULT_NODE_HEIGHT));
         }
 
+        element.getData().vizNode.data.isCollapsed = collapsed;
         element.setCollapsed(collapsed);
         element.getController().getGraph().layout();
       })();

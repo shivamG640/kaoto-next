@@ -37,6 +37,10 @@
         }
       }
 
+      &__dropTarget {
+        border: 4px dashed var(--custom-node-BorderColor);
+      }
+
       &:hover,
       [data-toolbar-open='true'] &,
       [data-selected='true'] & {
