@@ -1,21 +1,33 @@
 import { Icon } from '@patternfly/react-core';
 import { BanIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
-import type { DefaultNode, ElementModel, GraphElement, Node } from '@patternfly/react-topology';
 import {
   AnchorEnd,
+  DefaultNode,
   DEFAULT_LAYER,
+  DragObjectWithType,
+  DragSourceSpec,
+  DragSpecOperationType,
+  DropTargetSpec,
+  EditableDragOperationType,
+  ElementModel,
+  GraphElement,
+  GraphElementProps,
+  isNode,
   LabelBadge,
   Layer,
+  Node,
+  observer,
   Rect,
   TOP_LAYER,
-  WithSelectionProps,
-  isNode,
-  observer,
   useAnchor,
+  useCombineRefs,
   useHover,
+  useDndDrop,
+  useDragNode,
   useSelection,
   withContextMenu,
   withSelection,
+  WithSelectionProps,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
 import { FunctionComponent, useContext, useRef } from 'react';
@@ -27,6 +39,7 @@ import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { TargetAnchor } from '../target-anchor';
 import './CustomNode.scss';
+import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
 interface CustomNodeProps extends DefaultNodeProps, WithSelectionProps {
@@ -41,6 +54,7 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, onCo
   }
 
   const vizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
+  const entitiesContext = useEntityContext();
   const settingsAdapter = useContext(SettingsContext);
   const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
   const isDisabled = !!vizNode?.getComponentSchema()?.definition?.disabled;
@@ -70,10 +84,60 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, onCo
     return null;
   }
 
+  const nodeDragSourceSpec: DragSourceSpec<
+    DragObjectWithType,
+    DragSpecOperationType<EditableDragOperationType>,
+    GraphElement,
+    object,
+    GraphElementProps
+  > = {
+    item: { type: '#node#' },
+    begin: () => {
+      const node = element as Node;
+
+      // Hide connected edges when dragging starts
+      node.getSourceEdges().forEach((edge) => edge.setVisible(false));
+      node.getTargetEdges().forEach((edge) => edge.setVisible(false));
+    },
+    canDrag: () => {
+      return element.getData()?.vizNode?.canDragNode() ? true : false;
+    },
+    end: () => {
+      const node = element as Node;
+
+      // Show edges again after dropping
+      node.getSourceEdges().forEach((edge) => edge.setVisible(true));
+      node.getTargetEdges().forEach((edge) => edge.setVisible(true));
+    },
+  };
+
+  const nodeDropTargetSpec: DropTargetSpec<GraphElement, unknown, object, GraphElementProps> = {
+    accept: ['#node#'],
+    canDrop: (item) => {
+      const targetNode = element as Node;
+      const draggedNode = item as Node;
+      // Ensure that the node is not dropped onto itself
+      return draggedNode !== targetNode;
+    },
+    drop: (item) => {
+      const draggedNodePath = item.getData().vizNode.data.path;
+
+      // Switch the positions of the dragged and target nodes
+      element.getData()?.vizNode?.switchSteps(draggedNodePath);
+
+      /** Update entity */
+      entitiesContext.updateEntitiesFromCamelResource();
+    },
+  };
+
+  const [_, dragNodeRef] = useDragNode(nodeDragSourceSpec);
+  const gCombinedRef = useCombineRefs<SVGGElement>(gHoverRef, dragNodeRef);
+  const [__, dropNodeRef] = useDndDrop(nodeDropTargetSpec);
+
   return (
     <Layer id={DEFAULT_LAYER}>
       <g
-        ref={gHoverRef}
+        ref={gCombinedRef}
         className="custom-node"
         data-testid={`custom-node__${vizNode.id}`}
         data-nodelabel={label}
@@ -83,7 +147,12 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, onCo
         onClick={onSelect}
         onContextMenu={onContextMenu}
       >
-        <foreignObject data-nodelabel={label} width={boxRef.current.width} height={boxRef.current.height}>
+        <foreignObject
+          data-nodelabel={label}
+          width={boxRef.current.width}
+          height={boxRef.current.height}
+          ref={dropNodeRef}
+        >
           <div className="custom-node__container">
             <div title={tooltipContent} className="custom-node__container__image">
               <img src={vizNode.data.icon} />
