@@ -171,22 +171,28 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     }
   }
 
-  switchSteps(options: { draggedNodePath: string; droppedNodePath?: string | undefined }) {
-    if (
-      options.droppedNodePath === undefined ||
-      options.droppedNodePath === 'source' ||
-      options.droppedNodePath === 'sink'
-    )
-      return;
+  switchSteps(options: { draggedNodePath: string; droppedNodePath?: string }) {
+    if (options.droppedNodePath === undefined) return;
 
     const step = getValue(this.pipe.spec!, options.draggedNodePath);
     /** Remove the dragged node */
     this.removeStep(options.draggedNodePath);
 
-    /** Add the dragged node before the drop target */
     const kameletArray = getArrayProperty(this.pipe.spec!, 'steps') as PipeStep[];
-    const index = Number(options.droppedNodePath.split('.').pop());
-    kameletArray.splice(index, 0, step);
+    let desiredIndex: number;
+
+    if (options.droppedNodePath === 'source') {
+      /** Add the dragged node just after the source */
+      desiredIndex = 0;
+    } else if (options.droppedNodePath === 'sink') {
+      /** Add the dragged node just before the sink */
+      desiredIndex = kameletArray.length;
+    } else {
+      /** Add the dragged node at the target node index */
+      desiredIndex = Number(options.droppedNodePath.split('.').pop());
+    }
+
+    kameletArray.splice(desiredIndex, 0, step);
   }
 
   removeStep(path?: string): void {

@@ -93,17 +93,17 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, onCo
   > = {
     item: { type: '#node#' },
     begin: () => {
-      const node = element as Node;
+      const node = element;
 
       // Hide connected edges when dragging starts
       node.getSourceEdges().forEach((edge) => edge.setVisible(false));
       node.getTargetEdges().forEach((edge) => edge.setVisible(false));
     },
     canDrag: () => {
-      return element.getData()?.vizNode?.canDragNode() ? true : false;
+      return element.getData()?.vizNode?.canDragNode();
     },
     end: () => {
-      const node = element as Node;
+      const node = element;
 
       // Show edges again after dropping
       node.getSourceEdges().forEach((edge) => edge.setVisible(true));
@@ -114,7 +114,7 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, onCo
   const nodeDropTargetSpec: DropTargetSpec<GraphElement, unknown, object, GraphElementProps> = {
     accept: ['#node#'],
     canDrop: (item) => {
-      const targetNode = element as Node;
+      const targetNode = element;
       const draggedNode = item as Node;
       // Ensure that the node is not dropped onto itself
       return draggedNode !== targetNode;
