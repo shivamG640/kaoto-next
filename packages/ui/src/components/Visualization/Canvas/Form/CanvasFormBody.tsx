@@ -32,11 +32,15 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
   const model = visualComponentSchema?.definition;
   let processedSchema = visualComponentSchema?.schema;
   if (selectedTab === 'Required') {
-    processedSchema = getRequiredPropertiesSchema(visualComponentSchema?.schema ?? {});
+    processedSchema = getRequiredPropertiesSchema(visualComponentSchema?.schema, visualComponentSchema?.schema);
   } else if (selectedTab === 'Modified') {
     processedSchema = {
       ...visualComponentSchema?.schema,
-      properties: getUserUpdatedPropertiesSchema(visualComponentSchema?.schema.properties ?? {}, model),
+      properties: getUserUpdatedPropertiesSchema(
+        visualComponentSchema?.schema.properties,
+        model,
+        visualComponentSchema?.schema,
+      ),
     };
   }
 

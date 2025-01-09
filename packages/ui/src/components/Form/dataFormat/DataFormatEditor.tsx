@@ -67,13 +67,13 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
 
   const processedSchema = useMemo(() => {
     if (props.formMode === 'Required') {
-      return getRequiredPropertiesSchema(dataFormatSchema ?? {});
+      return getRequiredPropertiesSchema(dataFormatSchema, dataFormatSchema);
     } else if (props.formMode === 'All') {
       return dataFormatSchema;
     } else if (props.formMode === 'Modified') {
       return {
         ...dataFormatSchema,
-        properties: getUserUpdatedPropertiesSchema(dataFormatSchema?.properties ?? {}, dataFormatModel ?? {}),
+        properties: getUserUpdatedPropertiesSchema(dataFormatSchema?.properties, dataFormatModel, dataFormatSchema),
       };
     }
   }, [props.formMode, dataFormat]);

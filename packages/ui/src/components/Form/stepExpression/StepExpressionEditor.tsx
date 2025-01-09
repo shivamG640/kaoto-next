@@ -71,13 +71,13 @@ export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> 
 
   const processedSchema = useMemo(() => {
     if (props.formMode === 'Required') {
-      return getRequiredPropertiesSchema(languageSchema ?? {});
+      return getRequiredPropertiesSchema(languageSchema, languageSchema);
     } else if (props.formMode === 'All') {
       return languageSchema;
     } else if (props.formMode === 'Modified') {
       return {
         ...languageSchema,
-        properties: getUserUpdatedPropertiesSchema(languageSchema?.properties ?? {}, languageModel ?? {}),
+        properties: getUserUpdatedPropertiesSchema(languageSchema?.properties, languageModel, languageSchema),
       };
     }
   }, [props.formMode, language]);
