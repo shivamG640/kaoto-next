@@ -68,13 +68,17 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
 
   const processedSchema = useMemo(() => {
     if (props.formMode === 'Required') {
-      return getRequiredPropertiesSchema(loadBalancerSchema ?? {});
+      return getRequiredPropertiesSchema(loadBalancerSchema, loadBalancerSchema);
     } else if (props.formMode === 'All') {
       return loadBalancerSchema;
     } else if (props.formMode === 'Modified') {
       return {
         ...loadBalancerSchema,
-        properties: getUserUpdatedPropertiesSchema(loadBalancerSchema?.properties ?? {}, loadBalancerModel ?? {}),
+        properties: getUserUpdatedPropertiesSchema(
+          loadBalancerSchema?.properties,
+          loadBalancerModel,
+          loadBalancerSchema,
+        ),
       };
     }
   }, [props.formMode, loadBalancer]);

@@ -4,6 +4,20 @@ import { KaotoSchemaDefinition } from '../models/kaoto-schema';
 describe('getRequiredPropertiesSchema()', () => {
   const schema = {
     type: 'object',
+    definitions: {
+      testRef: {
+        type: 'object',
+        title: 'testRef',
+        properties: {
+          spec: {
+            type: 'string',
+            title: 'Specification',
+            description: 'Path to the OpenApi specification file.',
+          },
+        },
+        required: ['spec'],
+      },
+    },
     properties: {
       id: {
         title: 'Id',
@@ -20,6 +34,9 @@ describe('getRequiredPropertiesSchema()', () => {
       variableReceive: {
         title: 'Variable Receive',
         type: 'string',
+      },
+      testRef: {
+        $ref: '#/definitions/testRef',
       },
       parameters: {
         type: 'object',
@@ -154,6 +171,18 @@ describe('getRequiredPropertiesSchema()', () => {
         title: 'Uri',
         type: 'string',
       },
+      testRef: {
+        type: 'object',
+        title: 'testRef',
+        properties: {
+          spec: {
+            type: 'string',
+            title: 'Specification',
+            description: 'Path to the OpenApi specification file.',
+          },
+        },
+        required: ['spec'],
+      },
       parameters: {
         type: 'object',
         title: 'Endpoint Properties',
@@ -200,13 +229,13 @@ describe('getRequiredPropertiesSchema()', () => {
     required: ['id', 'uri', 'labels'],
   };
 
-  it('should return only the properties which are user Modified', () => {
-    const procesedSchema = getRequiredPropertiesSchema(schema);
+  it('should return only the properties which are Required', () => {
+    const procesedSchema = getRequiredPropertiesSchema(schema, schema);
     expect(procesedSchema).toMatchObject(expectedSchema);
   });
 
   it('should return {}', () => {
-    const procesedSchema = getRequiredPropertiesSchema({});
+    const procesedSchema = getRequiredPropertiesSchema({}, schema);
     expect(procesedSchema).toMatchObject({});
   });
 });

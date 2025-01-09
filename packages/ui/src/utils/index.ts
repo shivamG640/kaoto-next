@@ -6,6 +6,7 @@ export * from './event-notifier';
 export * from './get-array-property';
 export * from './get-custom-schema-from-kamelet';
 export * from './get-field-groups';
+export * from './get-filtered-properties';
 export * from './get-required-properties-schema';
 export * from './get-serialized-model';
 export * from './get-user-updated-properties-schema';
